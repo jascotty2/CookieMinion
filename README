@@ -1,0 +1,33 @@
+CookieMinion - The lightweight PvE reward plugin.
+
+
+A ground-up rewrite of CookieMonster, this version was designed with both features and simplicity in mind.
+My previos project, CookieMonster v2 was growing way out of control and will be a massive configuration headache for any new server owner if I ever release it. Giving virtual unlimited configuration options comes at the cost of simplicity.
+That's where CookieMinion came in. Under the working title of "CookieMonster Classic", it was an idea sitting in my projects folder for far too long. Without much more ado, here's what it can do:
+
+Features:
+- Configurable item and economy rewards for any LivingEntity with an EntiyType
+- Can replace the default loot drops with our own, or just add to it
+- Option to run a series of console commands whenever a player kills a creature
+- VIP permission cash reward multipliers
+- Fixed or variable rewards with optional whole-number rounding
+- Optional Default values for entities not defined
+- Can drop money as items that are added to the player's balance once 'picked up'
+- Option to only drop items for a direct kill (stops autofarmers)
+
+Improvements:
+- Uses the Vault API for economy, instead of trying to manually track all of the economy plugins out there
+- Damage tracking is linked to the entities, reducing the threads needed to clean up memory usage
+
+Commands:
+/cookieminion reload        Reloads configuration settings
+/cm                         Alias for /cookieminion
+
+Permissions:
+- cookiemonster.admin         Required to use the main command
+
+
+
+kudos to IDLauncher for the name idea - it stuck :)
+
+
