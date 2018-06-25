@@ -186,8 +186,9 @@ public class EntityListener implements Listener {
 					if (r.replaceLoot) {
 						event.getDrops().clear();
 					}
+					double cash = 0;
 					if (plugin.econ.enabled()) {
-						double cash = r.getRewardAmount(p);
+						cash = r.getRewardAmount(p);
 						if (cash != Double.NaN && cash != 0) {
 							if (plugin.config.usePhysicalMoneyDrops && cash > 0) {
 								ItemStack it = new ItemStack(plugin.config.moneyDropItem);
@@ -212,11 +213,11 @@ public class EntityListener implements Listener {
 								}
 							}
 						}
-						// and the other kill events:
-						event.getDrops().addAll(r.getRewardLoot());
-						r.sendMessage(p, event.getEntity(), cash);
-						r.runRewardCommands(p, plugin.commander, event.getEntity(), cash);
 					}
+					// and the other kill events:
+					event.getDrops().addAll(r.getRewardLoot());
+					r.sendMessage(p, event.getEntity(), cash);
+					r.runRewardCommands(p, plugin.commander, event.getEntity(), cash);
 				}
 			} else if (!plugin.config.allowNaturalDeathItemDrops) {
 				// pretty sure this is a 'natural' death, so let's kill the loot

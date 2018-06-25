@@ -14,6 +14,8 @@ Features:
 - Optional Default values for entities not defined
 - Can drop money as items that are added to the player's balance once 'picked up'
 - Option to only drop items for a direct kill (stops autofarmers)
+- Item drops are fully configurable with data and coloring, including book contents!
+-- attributes supported: ench/enchantments, display, unbreakable, hideflags, skullowner(skull), generation(book), title(book), author(book), pages(book), lore
 
 Improvements:
 - Uses the Vault API for economy, instead of trying to manually track all of the economy plugins out there

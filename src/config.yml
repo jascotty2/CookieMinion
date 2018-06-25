@@ -64,6 +64,7 @@ rewards:
         replaceLoot: false
         # custom message for killing this entity
         # note that if you start a string with a &-code, you do need quotes around the message
+        # Also note: other entities will use this 'default' setting if not defined
         message: "&aYou earned &6$money$ &afor the kill!"
         # you can also specify a command for the console to run!
         # @p = player name

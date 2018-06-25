@@ -142,11 +142,11 @@ public class Config {
 				}
 			}
 		}
-		
+
 		// copy multiplier settings
-		if(defaultReward.multiplierOrder != null && defaultReward.multipliers != null) {
-			for(Reward r : rewards.values()) {
-				if(r.multiplierOrder == null) {
+		if (defaultReward.multiplierOrder != null && defaultReward.multipliers != null) {
+			for (Reward r : rewards.values()) {
+				if (r.multiplierOrder == null) {
 					r.multiplierOrder = defaultReward.multiplierOrder;
 					r.multipliers = defaultReward.multipliers;
 				}
@@ -181,14 +181,14 @@ public class Config {
 		if ((r.message = sec.getString("message")) != null) {
 			r.message = ChatColor.translateAlternateColorCodes('&', r.message);
 		}
-		
+
 		Object mo = sec.get("multipliers");
-		if(mo instanceof List) {
+		if (mo instanceof List) {
 			r.multipliers = new HashMap<String, Double>();
 			r.multiplierOrder = new LinkedList<String>();
-			for(Object perm : (List) mo) {
-				if(perm instanceof Map) {
-					for(Map.Entry<String, Object> e : ((Map<String, Object>) perm).entrySet()) {
+			for (Object perm : (List) mo) {
+				if (perm instanceof Map) {
+					for (Map.Entry<String, Object> e : ((Map<String, Object>) perm).entrySet()) {
 						try {
 							double v = Double.parseDouble(e.getValue().toString());
 							r.multipliers.put(e.getKey(), v);
@@ -202,11 +202,11 @@ public class Config {
 					r.incompleteLoadError = true;
 				}
 			}
-		} else if(mo instanceof Map) {
+		} else if (mo instanceof Map) {
 			// just in case someone missed the list format
 			r.multipliers = new HashMap<String, Double>();
 			r.multiplierOrder = new LinkedList<String>();
-			for(Map.Entry<String, Object> e : ((Map<String, Object>) mo).entrySet()) {
+			for (Map.Entry<String, Object> e : ((Map<String, Object>) mo).entrySet()) {
 				try {
 					double v = Double.parseDouble(e.getValue().toString());
 					r.multipliers.put(e.getKey(), v);
@@ -216,11 +216,11 @@ public class Config {
 					r.incompleteLoadError = true;
 				}
 			}
-		} else if(mo != null) {
+		} else if (mo != null) {
 			plugin.getLogger().warning("multiplier setting error for " + sec.getCurrentPath());
 			r.incompleteLoadError = true;
 		}
-		
+
 		if ((l = sec.getStringList("loot")) != null && !l.isEmpty()) {
 			r.loot = new LinkedList<Reward.Item>();
 			// full possible: 
@@ -325,6 +325,7 @@ public class Config {
 		// SkullOwner (Skull), generation (Book)
 		String errors = "";
 		Object o;
+		boolean enchErrors = false;
 		for (Object k : dat.keySet()) {
 			switch (k.toString().toLowerCase()) {
 				case "ench":
@@ -337,8 +338,8 @@ public class Config {
 								Object id = ((Map) enc).get("id");
 								if (id instanceof String) {
 									boolean test = false;
-									for(Enchantment ech : Enchantment.values()) {
-										if((ech.getName() != null && ech.getName().equalsIgnoreCase(id.toString()))
+									for (Enchantment ech : Enchantment.values()) {
+										if ((ech.getName() != null && ech.getName().equalsIgnoreCase(id.toString()))
 												|| ech.getClass().getSimpleName().equalsIgnoreCase(id.toString())) {
 											test = true;
 											break;
@@ -357,7 +358,7 @@ public class Config {
 									ok = false;
 								}
 								id = ((Map) enc).get("lvl");
-								if(id != null && !(id instanceof Integer)) {
+								if (id != null && !(id instanceof Integer)) {
 									ok = false;
 								}
 							} else {
@@ -368,21 +369,15 @@ public class Config {
 						ok = false;
 					}
 					if (!ok) {
+						enchErrors = true;
 						plugin.getLogger().warning("Erroneous enchantments for " + def);
 					}
 				case "display":
+					break;
 				case "unbreakable":
-					break;
-				case "age":
 					// verify that this is in range
-					if (!((o = dat.get(k)) instanceof Integer)) {
-						plugin.getLogger().warning("Bad value for pickupdelay for " + def);
-					}
-					break;
-				case "pickupdelay":
-					// verify that this is in range
-					if (!((o = dat.get(k)) instanceof Integer) || (Integer) o < 0 || (Integer) o > 32767) {
-						plugin.getLogger().warning("Bad value for pickupdelay for " + def);
+					if (!(dat.get(k) instanceof Integer)) {
+						plugin.getLogger().warning("Bad value for unbreakable for " + def);
 					}
 					break;
 				case "hideflags":
@@ -401,7 +396,15 @@ public class Config {
 						errors = errors + (errors.isEmpty() ? "" : ", ") + k.toString();
 					}
 					break;
+				// custom tags
+				case "title":
+				case "author":
+				case "pages":
+				case "lore":
+					break;
 				// not planning on supporting these right now
+				case "age":
+				case "pickupdelay":
 				case "attributemodifiers":
 				case "candestroy":
 				default:
@@ -411,6 +414,6 @@ public class Config {
 		if (!errors.isEmpty()) {
 			plugin.getLogger().warning("Notice: Unexpected data tag" + (errors.indexOf(',') == -1 ? "" : "s") + ": " + errors + " in definition for " + def);
 		}
-		return errors.isEmpty();
+		return enchErrors || errors.isEmpty();
 	}
 }

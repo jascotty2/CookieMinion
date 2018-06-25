@@ -20,6 +20,7 @@ package me.jascotty2.cookieminion;
 
 import java.text.NumberFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -32,9 +33,14 @@ import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 
 public class Reward {
 
@@ -42,7 +48,7 @@ public class Reward {
 	private static final Pattern WORD_BOUNDS_PATTERN = Pattern.compile("\\b(\\w)");
 
 	public boolean useFixedReward = false, useVariableReward = false,
-			hasLootReward = false, replaceLoot = false, useDecimalAmounts = true,
+			replaceLoot = false, useDecimalAmounts = true,
 			playerStealsReward = false;
 	public double amount, minAmount, maxAmount;
 	public List<String> commands = null;
@@ -56,31 +62,6 @@ public class Reward {
 	 * the config definition
 	 */
 	public boolean incompleteLoadError = false;
-
-	public static class Item {
-
-		public final Material itemMaterial;
-		double chance = 100;
-		int amount = 1;
-		short data = 0;
-		short dataMax = 0;
-		Map extraData = null;
-
-		public Item(Material itemMaterial) {
-			this.itemMaterial = itemMaterial;
-		}
-
-		public ItemStack getItemStack() {
-			ItemStack it = new ItemStack(itemMaterial, amount);
-			if (data != dataMax) {
-				it.setDurability((short) (data + RNG.nextInt(dataMax - data)));
-			} else if (data != 0) {
-				it.setDurability(data);
-			}
-			// todo: extraData
-			return it;
-		}
-	}
 
 	/*
         # each item has a type or id, a data value [or a data range], max number, and a percentage chance to drop 
@@ -99,7 +80,7 @@ public class Reward {
 	
 	 */
 	public List<ItemStack> getRewardLoot() {
-		if (!hasLootReward || loot == null || loot.isEmpty()) {
+		if (loot == null || loot.isEmpty()) {
 			return Collections.EMPTY_LIST;
 		}
 		List<ItemStack> itms = new ArrayList<ItemStack>();
@@ -236,4 +217,164 @@ public class Reward {
 		mat.appendTail(sb);
 		return sb.toString();
 	}
+
+	public static class Item {
+
+		public final Material itemMaterial;
+		double chance = 100;
+		int amount = 1;
+		short data = 0;
+		short dataMax = 0;
+		Map extraData = null;
+
+		public Item(Material itemMaterial) {
+			if (itemMaterial == Material.SKULL) {
+				this.itemMaterial = Material.SKULL_ITEM;
+			} else {
+				this.itemMaterial = itemMaterial;
+			}
+		}
+
+		public ItemStack getItemStack() {
+			ItemStack it = new ItemStack(itemMaterial, amount);
+			if (data != dataMax) {
+				it.setDurability((short) (data + RNG.nextInt(dataMax - data)));
+			} else if (data != 0) {
+				it.setDurability(data);
+			}
+			// does this item have additional metadata?
+			if (extraData != null) {
+				ItemMeta itm = it.getItemMeta();
+				Object o;
+				for (Object k : extraData.keySet()) {
+					switch (k.toString().toLowerCase()) {
+						case "ench":
+						case "enchantments":
+							// add enchatments to the item
+							if ((o = extraData.get(k)) instanceof List) {
+								for (Object enc : (List) o) {
+									if (enc instanceof Map) {
+										Enchantment toAdd = null;
+										int lvl = 1;
+										Object id = ((Map) enc).get("id");
+										if (id instanceof String) {
+											for (Enchantment ech : Enchantment.values()) {
+												if ((ech.getName() != null && ech.getName().equalsIgnoreCase(id.toString()))
+														|| ech.getClass().getSimpleName().equalsIgnoreCase(id.toString())) {
+													toAdd = ech;
+													break;
+												}
+											}
+										} else if (id instanceof Integer) {
+											toAdd = Enchantment.getById((Integer) id);
+										}
+										if (toAdd != null) {
+											id = ((Map) enc).get("lvl");
+											if (id != null && (id instanceof Integer)) {
+												lvl = (Integer) id;
+											}
+											itm.addEnchant(toAdd, lvl, true);
+										}
+									}
+								}
+							}
+							break;
+						case "display":
+							itm.setDisplayName(ChatColor.translateAlternateColorCodes('&', extraData.get(k).toString()));
+							break;
+						case "unbreakable":
+							if ((o = extraData.get(k)) instanceof Integer) {
+								itm.setUnbreakable(((Integer) o) != 0);
+							}
+							break;
+						case "hideflags":
+							if ((o = extraData.get(k)) instanceof Integer) {
+								int flag = (Integer) o;
+								if (flag >= 32 && (flag = flag - 32) >= 0) {
+									itm.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+								}
+								if (flag >= 16 && (flag = flag - 16) >= 0) {
+									itm.addItemFlags(ItemFlag.HIDE_PLACED_ON);
+								}
+								if (flag >= 8 && (flag = flag - 8) >= 0) {
+									itm.addItemFlags(ItemFlag.HIDE_DESTROYS);
+								}
+								if (flag >= 4 && (flag = flag - 4) >= 0) {
+									itm.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
+								}
+								if (flag >= 2 && (flag = flag - 2) >= 0) {
+									itm.addItemFlags(ItemFlag.HIDE_ATTRIBUTES);
+								}
+								if (flag >= 1) {
+									itm.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+								}
+							}
+							break;
+						case "skullowner":
+							if (itm instanceof SkullMeta) {
+								it.setDurability((short)3);
+								((SkullMeta) itm).setOwner(extraData.get(k).toString());
+							}
+							break;
+						case "generation":
+							if(itm instanceof BookMeta) {
+								BookMeta bm = (BookMeta) itm;
+								switch(extraData.get(k).toString().toLowerCase()) {
+									case "original":
+										bm.setGeneration(BookMeta.Generation.ORIGINAL);
+										break;
+									case "copy of original":
+										bm.setGeneration(BookMeta.Generation.COPY_OF_ORIGINAL);
+										break;
+									case "copy of a copy":
+										bm.setGeneration(BookMeta.Generation.COPY_OF_COPY);
+										break;
+									case "tattered":
+										bm.setGeneration(BookMeta.Generation.TATTERED);
+								}
+							}
+							break;
+						/**** Custom NBT Tags!! ****/
+						case "title":
+							if(itm instanceof BookMeta) {
+								BookMeta bm = (BookMeta) itm;
+								bm.setTitle(ChatColor.translateAlternateColorCodes('&', extraData.get(k).toString()));
+							}
+							break;
+						case "author":
+							if(itm instanceof BookMeta) {
+								BookMeta bm = (BookMeta) itm;
+								bm.setAuthor(ChatColor.translateAlternateColorCodes('&', extraData.get(k).toString()));
+							}
+							break;
+						case "pages":
+							if(itm instanceof BookMeta) {
+								BookMeta bm = (BookMeta) itm;
+								if((o = extraData.get(k)) instanceof List) {
+									for(Object page : (List) o) {
+										bm.addPage(ChatColor.translateAlternateColorCodes('&', page.toString()));
+									}
+								} else {
+									bm.addPage(ChatColor.translateAlternateColorCodes('&', o.toString()));
+								}
+							}
+							break;
+						case "lore":
+							if((o = extraData.get(k)) instanceof List) {
+								ArrayList<String> lore = new ArrayList<String>(((List)o).size());
+								for(Object page : (List) o) {
+									lore.add(ChatColor.translateAlternateColorCodes('&', page.toString()));
+								}
+								itm.setLore(lore);
+							} else {
+								itm.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', o.toString())));
+							}
+					}
+				}
+				it.setItemMeta(itm);
+			}
+			return it;
+		}
+	}
+
 }
