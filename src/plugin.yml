@@ -1,0 +1,15 @@
+name: CookieMinion
+description: A ultra-lightweight version of CookieMonster
+main: me.jascotty2.cookieminion.CookieMinion
+version: 1.0
+author: jascotty2
+softdepend: [Vault, CookieMonster]
+commands:
+  cookieminion:
+    description: Admin Commands
+    usage: /<command> [reload|region define/list/remove]
+    aliases: [cm]
+    permission: cookiemonster.admin
+permissions:
+  cookiemonster.admin:
+    default: op

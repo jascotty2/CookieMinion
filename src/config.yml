@@ -1,0 +1,135 @@
+###
+# Welcome to the config for CookieMinion!
+#
+# Hopefully I managed to make this config easy enough to understand :)
+#
+###
+
+# Should mobs from a mob spawner reward the player?
+allowMobSpawnerRewards: false
+
+# If a mob dies and no player killed it, should it still drop items?
+allowNaturalDeathItemDrops: true
+
+# If you have a multiworld installation with special worlds 
+# that you don't want players distracted by farming rewards
+# Note: This setting is case-sensitive!
+disabledWorlds:
+    - put_your_world_name_here
+    - any_world_that_mobs_should_not_reward_players
+
+# New to CookieMonster: drop money as a shiny item!
+# If true, rewards are not given to the player until they 'pick up' the reward
+physicalMoneyDrops: true
+# For the item, nearly any value in this list is acceptable:
+# https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/Material.html
+moneyDropItem: EMERALD
+# Colors: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/ChatColor.html
+moneyDropColor: GOLD
+
+# now for the actual rewards!
+rewards:
+    # In general, any LivingEntity can be defined here.
+    # I don't have a handy list, but you can use this as a reference: 
+    # https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html 
+    # the 'default' setting here is for anything that you don't have explicitly defined
+    default:
+        # you can specify an exact value
+        amount: 3.14
+        # or you can specify a range (if defined, we ignore the amount setting)
+        min: 2
+        max: 4
+        # if you have a range specified, do you want decimals? (default true)
+        allowDecimals: true
+        # You can provide currency multipliers for permissions groups, too
+        # The player will be matched only once and with the first permission in the list
+        # Also note: other entities will use this 'default' setting if not defined
+        multipliers:
+            - cookiemonster.vip: 2
+            - cookiemonster.extra: 3
+        # You can also have extra drops added to the loot!
+        # each item has a type or id, a data value [or a data range], max number, and a percentage chance to drop 
+        # you can also set some NBT values in curly brackets {}
+        loot: 
+            - INK_SACK:[1-15]@2%90
+            - MELON%10
+            - IRON_NUGGET%10
+            - SKULL{SkullOwner:"jascotty2"}%.5
+            - IRON_SWORD{Enchantments:[{id:21,lvl:1}]}
+            - IRON_SWORD:[50-200]{Enchantments:[{id:"Mending"}]}
+        # The loot table is checked sequentially
+        # use this if you want it to stop once it's provided a certain number of drops
+        maxLoot: 1
+        # Set replace to true if you don't want the mob to drop its default loot
+        replaceLoot: false
+        # custom message for killing this entity
+        # note that if you start a string with a &-code, you do need quotes around the message
+        message: "&aYou earned &6$money$ &afor the kill!"
+        # you can also specify a command for the console to run!
+        # @p = player name
+        # $entity$ = the name of the entity or entity type
+        # $money$ = the amount of money won
+        commands:
+            - /say &9@p &ajust killed a $entity$ and earned &6$$money$!
+    
+    PLAYER:
+        # Player config has some special settings
+        min: 20
+        max: 50
+        # If stealing is enabled, killing the player will drop some of their money
+        # Of course, if the amount is negative, the killer pays the victim ;)
+        stealReward: true
+        message: "&aYou managed to steal &6$money$ &afrom &c$entity$!"
+        
+        
+    # More you can use!
+#    
+#    BAT
+#    BLAZE
+#    CAVE_SPIDER
+#    CHICKEN
+#    COW
+#    CREEPER
+#    DONKEY
+#    ELDER_GUARDIAN
+#    ENDER_DRAGON
+#    ENDERMAN
+#    ENDERMITE
+#    EVOKER
+#    GHAST
+#    GIANT
+#    GUARDIAN
+#    HORSE
+#    HUSK
+#    ILLUSIONER
+#    IRON_GOLEM
+#    LLAMA
+#    MAGMA_CUBE
+#    MULE
+#    MUSHROOM_COW
+#    OCELOT
+#    PARROT
+#    PIG
+#    PIG_ZOMBIE
+#    POLAR_BEAR
+#    RABBIT
+#    SHEEP
+#    SHULKER
+#    SILVERFISH
+#    SKELETON
+#    SKELETON_HORSE
+#    SLIME
+#    SNOWMAN
+#    SPIDER
+#    SQUID
+#    STRAY
+#    VEX
+#    VILLAGER
+#    VINDICATOR
+#    WITCH
+#    WITHER
+#    WITHER_SKELETON
+#    WOLF
+#    ZOMBIE
+#    ZOMBIE_HORSE
+#    ZOMBIE_VILLAGER
