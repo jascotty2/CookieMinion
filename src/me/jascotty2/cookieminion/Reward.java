@@ -18,7 +18,6 @@
  */
 package me.jascotty2.cookieminion;
 
-import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -96,7 +95,7 @@ public class Reward {
 		return itms;
 	}
 
-	public double getRewardAmount(Player p) {
+	public double getRewardAmount(Player p, int decimals) {
 		if (!useFixedReward && !useVariableReward) {
 			return Double.NaN;
 		}
@@ -112,15 +111,27 @@ public class Reward {
 		if (useFixedReward) {
 			return multi * amount;
 		} else {//if (useVariableReward) {
-			return (useDecimalAmounts
-					? Math.round((minAmount + (multi * RNG.nextDouble() * (maxAmount - minAmount))) * 100) / 100.
-					: Math.round(minAmount + (multi * RNG.nextInt((int) (maxAmount - minAmount)))));
+			if(useDecimalAmounts && decimals > 0) {
+				switch(decimals) {
+					case 1:
+						return Math.round((minAmount + (multi * RNG.nextDouble() * (maxAmount - minAmount))) * 10) / 10.;
+					case 2:
+						return Math.round((minAmount + (multi * RNG.nextDouble() * (maxAmount - minAmount))) * 100) / 100.;
+					case 3:
+						return Math.round((minAmount + (multi * RNG.nextDouble() * (maxAmount - minAmount))) * 1000) / 1000.;
+					case 4:
+						return Math.round((minAmount + (multi * RNG.nextDouble() * (maxAmount - minAmount))) * 10000) / 10000.;
+					default:
+						return Math.round((minAmount + (multi * RNG.nextDouble() * (maxAmount - minAmount))) * Math.pow(10, decimals)) /  Math.pow(10, decimals);
+				}
+			}
+			return Math.round(minAmount + (multi * RNG.nextInt((int) (maxAmount - minAmount))));
 		}
 	}
 
-	public void sendMessage(Player p, Entity entity, double reward) {
+	public void sendMessage(Player p, Entity entity, String reward) {
 		if (message != null && p != null) {
-			String msg = message.replace("$money$", NumberFormat.getInstance().format(reward));// a $entity$ and earned $$money$!
+			String msg = message.replace("$money$", reward);// a $entity$ and earned $$money$!
 			if (msg.contains("$entity$")) {
 				if (entity instanceof Player) {
 					msg = msg.replace("$entity$", ((Player) entity).getDisplayName());

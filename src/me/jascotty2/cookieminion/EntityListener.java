@@ -189,7 +189,7 @@ public class EntityListener implements Listener {
 					double cash = 0;
 					String cashStr = "$0";
 					if (plugin.econ.enabled()) {
-						cash = r.getRewardAmount(p);
+						cash = r.getRewardAmount(p, plugin.config.moneyDecimalPlaces);
 						if (r.playerStealsReward && event.getEntity() instanceof Player) {
 							double max = plugin.econ.getBalance((Player) event.getEntity());
 							if (max < cash) {
@@ -225,7 +225,7 @@ public class EntityListener implements Listener {
 					}
 					// and the other kill events:
 					event.getDrops().addAll(r.getRewardLoot());
-					r.sendMessage(p, event.getEntity(), cash);
+					r.sendMessage(p, event.getEntity(), cashStr);
 					r.runRewardCommands(p, plugin.commander, event.getEntity(), cashStr);
 				}
 			} else if (!plugin.config.allowNaturalDeathItemDrops) {
