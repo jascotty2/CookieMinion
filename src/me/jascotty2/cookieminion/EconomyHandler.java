@@ -18,6 +18,7 @@
  */
 package me.jascotty2.cookieminion;
 
+import java.text.NumberFormat;
 import net.milkbowl.vault.Vault;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.entity.Player;
@@ -28,9 +29,9 @@ import org.bukkit.plugin.RegisteredServiceProvider;
 public class EconomyHandler {
 
 	protected Economy vaultEcon = null;
-	protected final Plugin plugin;
+	protected final CookieMinion plugin;
 
-	public EconomyHandler(Plugin plugin) {
+	public EconomyHandler(CookieMinion plugin) {
 		this.plugin = plugin;
 	}
 
@@ -93,18 +94,42 @@ public class EconomyHandler {
 
 	public String format(double amt) {
 		String s;
-		return String.format("%s%.2f", (vaultEcon != null ? 
-				(Character.isDigit((s = vaultEcon.format(0).substring(0, 1)).charAt(0)) ? "$" : s ): "$"), amt);
+		return (vaultEcon != null ? (Character.isDigit((s = vaultEcon.format(0).substring(0, 1)).charAt(0)) ? "$" : s ): "$")
+				+ padEnd(NumberFormat.getInstance().format(amt));
 		// vault sometimes prints out flotaing point errors...
 		//return vaultEcon != null ? vaultEcon.format(amt) : String.format("%.2f", amt);
 	}
 
 	public String formatCurrency(double amt) {
-		return String.format("%s%.2f$s", (vaultEcon != null ? "$" : ""), amt,
-				vaultEcon != null ? (amt == 1 ? vaultEcon.currencyNameSingular() : vaultEcon.currencyNamePlural()) : "");
+		return (vaultEcon == null ? "$" : "")
+				+ padEnd(NumberFormat.getInstance().format(amt))
+				+ (vaultEcon != null ? " " + (amt == 1 ? vaultEcon.currencyNameSingular() : vaultEcon.currencyNamePlural()) : "");
 		// vault sometimes prints out flotaing point errors...
 //		return vaultEcon != null
 //				? vaultEcon.format(amt) + " " + (amt == 1 ? vaultEcon.currencyNameSingular() : vaultEcon.currencyNamePlural())
 //				: String.format("%.2f", amt);
+	}
+	
+	protected String padEnd(String str) {
+		final int moneyDecimalPlaces = plugin.config.moneyDecimalPlaces;
+		if(moneyDecimalPlaces > 0) {
+			int dec = str.indexOf('.');
+			if(dec == -1) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(str).append('.');
+				for(int i = 0; i < moneyDecimalPlaces; ++i) {
+					sb.append('0');
+				}
+				return sb.toString();
+			} else if(str.length() - dec >= moneyDecimalPlaces) {
+				StringBuilder sb = new StringBuilder();
+				sb.append(str);
+				for(int i = str.length() - dec; i <= moneyDecimalPlaces; ++i) {
+					sb.append('0');
+				}
+				return sb.toString();
+			}
+		}
+		return str;
 	}
 }

@@ -136,7 +136,7 @@ public class Reward {
 		}
 	}
 
-	public void runRewardCommands(Player p, CommandSender as, Entity entity, double reward) {
+	public void runRewardCommands(Player p, CommandSender as, Entity entity, String reward) {
 		if (commands != null && !commands.isEmpty()) {
 			String cmdTry = null;
 			try {
@@ -162,7 +162,7 @@ public class Reward {
 					cmd = cmd.replace("@p", p.getName());
 
 					// custom variables:
-					cmd = cmd.replace("$money$", NumberFormat.getInstance().format(reward));// a $entity$ and earned $$money$!
+					cmd = cmd.replace("$money$", reward);// a $entity$ and earned $$money$!
 					if (cmd.contains("$entity$")) {
 						if (entity instanceof Player) {
 							cmd = cmd.replace("$entity$", ((Player) entity).getDisplayName());

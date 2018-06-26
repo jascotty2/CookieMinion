@@ -25,7 +25,6 @@ import com.sk89q.worldguard.protection.flags.Flag;
 import com.sk89q.worldguard.protection.flags.StateFlag;
 import com.sk89q.worldguard.protection.flags.registry.SimpleFlagRegistry;
 import com.sk89q.worldguard.protection.managers.RegionManager;
-import java.lang.reflect.Field;
 import java.util.logging.Level;
 import me.jascotty2.libv3.util.ReflectionUtils;
 import org.bukkit.Bukkit;
@@ -49,14 +48,11 @@ public class RegionFlagManager {
 		}
 		try {
 			// add this flag to the list of flags
-			Field flagField = DefaultFlag.class.getField("flagsList");
-
 			Flag<?>[] flags = new Flag<?>[DefaultFlag.flagsList.length + 1];
 			System.arraycopy(DefaultFlag.flagsList, 0, flags, 0, DefaultFlag.flagsList.length);
-
 			flags[DefaultFlag.flagsList.length] = FLAG;
 
-			ReflectionUtils.setStaticField(flagField, flags);
+			ReflectionUtils.setStaticField(DefaultFlag.class.getField("flagsList"), flags);
 
 			// register this flag in the registry
 			SimpleFlagRegistry flagRegistry = (SimpleFlagRegistry) ReflectionUtils.getPrivateField(WorldGuardPlugin.class, wgPlugin, "flagRegistry");

@@ -27,6 +27,9 @@ moneyDropItem: EMERALD
 # Colors: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/ChatColor.html
 moneyDropColor: GOLD
 
+# how many decimal places does your currency have?
+moneyDecimalPlaces: 2
+
 # now for the actual rewards!
 rewards:
     # In general, any LivingEntity can be defined here.
@@ -72,7 +75,7 @@ rewards:
         # $entity$ = the name of the entity or entity type
         # $money$ = the amount of money won
         commands:
-            - /say &9@p &ajust killed a $entity$ and earned &6$$money$!
+            - /say &9@p &ajust killed a $entity$ and earned &6$money$!
     
     PLAYER:
         # Player config has some special settings

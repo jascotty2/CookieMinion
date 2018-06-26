@@ -1,14 +1,14 @@
 name: CookieMinion
 description: A ultra-lightweight version of CookieMonster
 main: me.jascotty2.cookieminion.CookieMinion
-version: 1.0
+version: 1.0.1
 author: jascotty2
 loadbefore: [WorldGuard]
 softdepend: [Vault, CookieMonster]
 commands:
   cookieminion:
     description: Admin Commands
-    usage: /<command> [reload|region define/list/remove]
+    usage: /cookieminion reload
     aliases: [cm]
     permission: cookiemonster.admin
 permissions:

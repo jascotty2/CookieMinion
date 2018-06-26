@@ -187,13 +187,22 @@ public class EntityListener implements Listener {
 						event.getDrops().clear();
 					}
 					double cash = 0;
+					String cashStr = "$0";
 					if (plugin.econ.enabled()) {
 						cash = r.getRewardAmount(p);
+						if (r.playerStealsReward && event.getEntity() instanceof Player) {
+							double max = plugin.econ.getBalance((Player) event.getEntity());
+							if (max < cash) {
+								cash = max;
+							}
+							plugin.econ.subtractMoney((Player) event.getEntity(), cash);
+						}
 						if (cash != Double.NaN && cash != 0) {
+							cashStr = plugin.econ.format(cash);
 							if (plugin.config.usePhysicalMoneyDrops && cash > 0) {
 								ItemStack it = new ItemStack(plugin.config.moneyDropItem);
 								ItemMeta m = it.getItemMeta();
-								m.setDisplayName(plugin.config.moneyDropColor + plugin.econ.format(cash));
+								m.setDisplayName(plugin.config.moneyDropColor + cashStr);
 								m.addItemFlags(ItemFlag.HIDE_UNBREAKABLE);
 								m.setUnbreakable(true);
 								m.setLore(Arrays.asList(lorePrefix + cash));
@@ -217,7 +226,7 @@ public class EntityListener implements Listener {
 					// and the other kill events:
 					event.getDrops().addAll(r.getRewardLoot());
 					r.sendMessage(p, event.getEntity(), cash);
-					r.runRewardCommands(p, plugin.commander, event.getEntity(), cash);
+					r.runRewardCommands(p, plugin.commander, event.getEntity(), cashStr);
 				}
 			} else if (!plugin.config.allowNaturalDeathItemDrops) {
 				// pretty sure this is a 'natural' death, so let's kill the loot
@@ -269,12 +278,14 @@ public class EntityListener implements Listener {
 								double closest = 16;
 								Player closestPlayer = null;
 								for (Player p : players) {
-									final double dx = p.getLocation().getX() - x,
-											dz = p.getLocation().getZ() - z,
-											d = dx * dx + dz * dz;
-									if (d < closest) {
-										closest = d;
-										closestPlayer = p;
+									if (!p.isDead()) {
+										final double dx = p.getLocation().getX() - x,
+												dz = p.getLocation().getZ() - z,
+												d = dx * dx + dz * dz;
+										if (d < closest) {
+											closest = d;
+											closestPlayer = p;
+										}
 									}
 								}
 								if (closestPlayer != null) {

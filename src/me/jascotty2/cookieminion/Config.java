@@ -40,7 +40,7 @@ public class Config {
 	final CookieMinion plugin;
 	final public HashMap<EntityType, Reward> rewards = new HashMap<EntityType, Reward>();
 	public Reward defaultReward = null;
-
+	int moneyDecimalPlaces = 2;
 	/**
 	 * Should mobs from a mob spawner reward the player?
 	 */
@@ -79,7 +79,8 @@ public class Config {
 		FileConfiguration cfg = plugin.getConfig();
 
 		boolean ok = true;
-
+		
+		moneyDecimalPlaces = Math.max(0, cfg.getInt("moneyDecimalPlaces", moneyDecimalPlaces));
 		allowMobSpawnerRewards = cfg.getBoolean("allowMobSpawnerRewards", allowMobSpawnerRewards);
 		allowNaturalDeathItemDrops = cfg.getBoolean("allowNaturalDeathItemDrops", allowNaturalDeathItemDrops);
 		usePhysicalMoneyDrops = cfg.getBoolean("physicalMoneyDrops", usePhysicalMoneyDrops);
