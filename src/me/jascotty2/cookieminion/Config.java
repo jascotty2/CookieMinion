@@ -144,11 +144,19 @@ public class Config {
 		}
 
 		// copy multiplier settings
-		if (defaultReward.multiplierOrder != null && defaultReward.multipliers != null) {
+		if (defaultReward != null && defaultReward.multiplierOrder != null && defaultReward.multipliers != null) {
 			for (Reward r : rewards.values()) {
 				if (r.multiplierOrder == null) {
 					r.multiplierOrder = defaultReward.multiplierOrder;
 					r.multipliers = defaultReward.multipliers;
+				}
+			}
+		}
+		// default message
+		if (defaultReward != null && defaultReward.message != null) {
+			for (Reward r : rewards.values()) {
+				if (r.message == null) {
+					r.message = defaultReward.message;
 				}
 			}
 		}

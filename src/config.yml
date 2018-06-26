@@ -51,12 +51,13 @@ rewards:
         # each item has a type or id, a data value [or a data range], max number, and a percentage chance to drop 
         # you can also set some NBT values in curly brackets {}
         loot: 
-            - INK_SACK:[1-15]@2%90
+            - INK_SACK:[1-15]@2%50
             - MELON%10
             - IRON_NUGGET%10
             - SKULL{SkullOwner:"jascotty2"}%.5
-            - IRON_SWORD{Enchantments:[{id:21,lvl:1}]}
-            - IRON_SWORD:[50-200]{Enchantments:[{id:"Mending"}]}
+            - IRON_SWORD{Enchantments:[{id:21,lvl:1}]}%30
+            - IRON_SWORD:[50-200]{Enchantments:[{id:"Mending"}]}%10
+            - GOLD_NUGGET
         # The loot table is checked sequentially
         # use this if you want it to stop once it's provided a certain number of drops
         maxLoot: 1
