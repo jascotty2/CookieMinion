@@ -186,7 +186,7 @@ public class EntityListener implements Listener {
 					if (r.replaceLoot) {
 						event.getDrops().clear();
 					}
-					double cash = 0;
+					double cash;
 					String cashStr = "$0";
 					if (plugin.econ.enabled()) {
 						cash = r.getRewardAmount(p, plugin.config.moneyDecimalPlaces);
@@ -225,6 +225,7 @@ public class EntityListener implements Listener {
 					}
 					// and the other kill events:
 					event.getDrops().addAll(r.getRewardLoot());
+					event.setDroppedExp(r.getXP(event.getDroppedExp()));
 					r.sendMessage(p, event.getEntity(), cashStr);
 					r.runRewardCommands(p, plugin.commander, event.getEntity(), cashStr);
 				}

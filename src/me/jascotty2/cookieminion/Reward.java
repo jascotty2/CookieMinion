@@ -50,6 +50,7 @@ public class Reward {
 			replaceLoot = false, useDecimalAmounts = true,
 			playerStealsReward = false;
 	public double amount, minAmount, maxAmount;
+	public int minXp = -1, maxXp = -1;
 	public List<String> commands = null;
 	public String message = null;
 	public int maxLoot = 0;
@@ -62,22 +63,6 @@ public class Reward {
 	 */
 	public boolean incompleteLoadError = false;
 
-	/*
-        # each item has a type or id, a data value [or a data range], max number, and a percentage chance to drop 
-        # you can also set some NBT values in curly brackets {}
-        loot: 
-            - INK_SACK:[1-15]@2%90
-            - MELON%10
-            - IRON_NUGGET%10
-            - SKULL{SkullOwner:"jascotty2"}%.5
-            - IRON_SWORD{Enchantments:[id:Looting,lvl:1]}%1
-        # The loot table is checked sequentially
-        # use this if you want it to stop once it's provided a certain number of drops
-        maxLoot: 1
-        # Set replace to true if you don't want the mob to drop its default loot
-        replaceLoot: false
-	
-	 */
 	public List<ItemStack> getRewardLoot() {
 		if (loot == null || loot.isEmpty()) {
 			return Collections.EMPTY_LIST;
@@ -94,7 +79,23 @@ public class Reward {
 
 		return itms;
 	}
-
+	
+	public int getXP(int dropped) {
+		if(minXp == 0 && maxXp == 0) {
+			return 0;
+		} else if(minXp >= 0 && maxXp > 0) {
+			// new random
+			return Math.round((minXp + (RNG.nextInt((int) (maxXp - minXp)))));
+		} else if(dropped < minXp) {
+			// enforce a minimum
+			return minXp;
+		} else if(maxXp >= 0 && dropped > maxXp) { 
+			// enforce a maximum
+			return maxXp;
+		}
+		return dropped;
+	}
+	
 	public double getRewardAmount(Player p, int decimals) {
 		if (!useFixedReward && !useVariableReward) {
 			return Double.NaN;

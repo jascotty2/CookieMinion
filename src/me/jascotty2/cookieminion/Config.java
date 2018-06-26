@@ -183,6 +183,9 @@ public class Config {
 		} else {
 			r.useFixedReward = (r.amount = sec.getDouble("min", Double.NEGATIVE_INFINITY)) != Double.NEGATIVE_INFINITY;
 		}
+		
+		r.minXp = sec.getInt("xpmin", -1);
+		r.maxXp = sec.getInt("xpmax", -1);
 
 		r.useDecimalAmounts = sec.getBoolean("allowDecimals", r.useDecimalAmounts);
 		r.playerStealsReward = sec.getBoolean("stealReward", r.playerStealsReward);

@@ -44,6 +44,10 @@ rewards:
         max: 4
         # if you have a range specified, do you want decimals? (default true)
         allowDecimals: true
+        # you can also set the amount of experience dropped:
+        # note that this replaces the default minecreaft experience drops
+        #xpmin: 3
+        #xpmax: 6
         # You can provide currency multipliers for permissions groups, too
         # The player will be matched only once and with the first permission in the list
         # Also note: other entities will use this 'default' setting if not defined
