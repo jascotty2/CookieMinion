@@ -270,7 +270,7 @@ public class EntityListener implements Listener {
 	void rewardCashForKill(LivingEntity e, Reward r, Player p, double portion) {
 		double cash;
 		String cashStr = "$0";
-		cash = portion * r.getRewardAmount(p, plugin.config.moneyDecimalPlaces);
+		cash = r.getRewardAmount(p, plugin.config.moneyDecimalPlaces, portion);
 
 		if (r.playerStealsReward && e instanceof Player) {
 			double max = plugin.econ.getBalance((Player) e);

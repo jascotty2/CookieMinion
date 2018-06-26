@@ -79,24 +79,24 @@ public class Reward {
 
 		return itms;
 	}
-	
+
 	public int getXP(int dropped) {
-		if(minXp == 0 && maxXp == 0) {
+		if (minXp == 0 && maxXp == 0) {
 			return 0;
-		} else if(minXp >= 0 && maxXp > 0) {
+		} else if (minXp >= 0 && maxXp > 0) {
 			// new random
 			return Math.round((minXp + (RNG.nextInt((int) (maxXp - minXp)))));
-		} else if(dropped < minXp) {
+		} else if (dropped < minXp) {
 			// enforce a minimum
 			return minXp;
-		} else if(maxXp >= 0 && dropped > maxXp) { 
+		} else if (maxXp >= 0 && dropped > maxXp) {
 			// enforce a maximum
 			return maxXp;
 		}
 		return dropped;
 	}
-	
-	public double getRewardAmount(Player p, int decimals) {
+
+	public double getRewardAmount(Player p, int decimals, double percentage) {
 		if (!useFixedReward && !useVariableReward) {
 			return Double.NaN;
 		}
@@ -109,11 +109,15 @@ public class Reward {
 				}
 			}
 		}
+		if (percentage > 1) {
+			percentage = 1;
+		}
+		multi *= percentage;
 		if (useFixedReward) {
 			return multi * amount;
 		} else {//if (useVariableReward) {
-			if(useDecimalAmounts && decimals > 0) {
-				switch(decimals) {
+			if (useDecimalAmounts && decimals > 0) {
+				switch (decimals) {
 					case 1:
 						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 10) / 10.;
 					case 2:
@@ -123,7 +127,7 @@ public class Reward {
 					case 4:
 						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 10000) / 10000.;
 					default:
-						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * Math.pow(10, decimals)) /  Math.pow(10, decimals);
+						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * Math.pow(10, decimals)) / Math.pow(10, decimals);
 				}
 			}
 			return Math.round(multi * (minAmount + (RNG.nextInt((int) (maxAmount - minAmount)))));
@@ -324,14 +328,14 @@ public class Reward {
 							break;
 						case "skullowner":
 							if (itm instanceof SkullMeta) {
-								it.setDurability((short)3);
+								it.setDurability((short) 3);
 								((SkullMeta) itm).setOwner(extraData.get(k).toString());
 							}
 							break;
 						case "generation":
-							if(itm instanceof BookMeta) {
+							if (itm instanceof BookMeta) {
 								BookMeta bm = (BookMeta) itm;
-								switch(extraData.get(k).toString().toLowerCase()) {
+								switch (extraData.get(k).toString().toLowerCase()) {
 									case "original":
 										bm.setGeneration(BookMeta.Generation.ORIGINAL);
 										break;
@@ -346,24 +350,26 @@ public class Reward {
 								}
 							}
 							break;
-						/**** Custom NBT Tags!! ****/
+						/**
+						 * ** Custom NBT Tags!! ***
+						 */
 						case "title":
-							if(itm instanceof BookMeta) {
+							if (itm instanceof BookMeta) {
 								BookMeta bm = (BookMeta) itm;
 								bm.setTitle(ChatColor.translateAlternateColorCodes('&', extraData.get(k).toString()));
 							}
 							break;
 						case "author":
-							if(itm instanceof BookMeta) {
+							if (itm instanceof BookMeta) {
 								BookMeta bm = (BookMeta) itm;
 								bm.setAuthor(ChatColor.translateAlternateColorCodes('&', extraData.get(k).toString()));
 							}
 							break;
 						case "pages":
-							if(itm instanceof BookMeta) {
+							if (itm instanceof BookMeta) {
 								BookMeta bm = (BookMeta) itm;
-								if((o = extraData.get(k)) instanceof List) {
-									for(Object page : (List) o) {
+								if ((o = extraData.get(k)) instanceof List) {
+									for (Object page : (List) o) {
 										bm.addPage(ChatColor.translateAlternateColorCodes('&', page.toString()));
 									}
 								} else {
@@ -372,9 +378,9 @@ public class Reward {
 							}
 							break;
 						case "lore":
-							if((o = extraData.get(k)) instanceof List) {
-								ArrayList<String> lore = new ArrayList<String>(((List)o).size());
-								for(Object page : (List) o) {
+							if ((o = extraData.get(k)) instanceof List) {
+								ArrayList<String> lore = new ArrayList<String>(((List) o).size());
+								for (Object page : (List) o) {
 									lore.add(ChatColor.translateAlternateColorCodes('&', page.toString()));
 								}
 								itm.setLore(lore);
