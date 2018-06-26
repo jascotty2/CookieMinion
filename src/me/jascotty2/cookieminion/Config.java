@@ -79,7 +79,7 @@ public class Config {
 		FileConfiguration cfg = plugin.getConfig();
 
 		boolean ok = true;
-		
+
 		moneyDecimalPlaces = Math.max(0, cfg.getInt("moneyDecimalPlaces", moneyDecimalPlaces));
 		allowMobSpawnerRewards = cfg.getBoolean("allowMobSpawnerRewards", allowMobSpawnerRewards);
 		allowNaturalDeathItemDrops = cfg.getBoolean("allowNaturalDeathItemDrops", allowNaturalDeathItemDrops);
@@ -183,9 +183,14 @@ public class Config {
 		} else {
 			r.useFixedReward = (r.amount = sec.getDouble("min", Double.NEGATIVE_INFINITY)) != Double.NEGATIVE_INFINITY;
 		}
-		
+
 		r.minXp = sec.getInt("xpmin", -1);
 		r.maxXp = sec.getInt("xpmax", -1);
+		if (r.minXp > r.maxXp) {
+			int temp = r.maxXp;
+			r.maxXp = r.minXp;
+			r.minXp = temp;
+		}
 
 		r.useDecimalAmounts = sec.getBoolean("allowDecimals", r.useDecimalAmounts);
 		r.playerStealsReward = sec.getBoolean("stealReward", r.playerStealsReward);
