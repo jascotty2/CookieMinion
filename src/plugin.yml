@@ -5,6 +5,7 @@ version: 1.0.1
 author: jascotty2
 loadbefore: [WorldGuard]
 softdepend: [Vault, CookieMonster]
+website: "https://dev.bukkit.org/projects/cookieminion"
 commands:
   cookieminion:
     description: Admin Commands
