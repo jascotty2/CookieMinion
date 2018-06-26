@@ -119,15 +119,15 @@ public class Reward {
 			if (useDecimalAmounts && decimals > 0) {
 				switch (decimals) {
 					case 1:
-						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 10) / 10.;
+						return Math.round(multi * ((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 10)) / 10.;
 					case 2:
-						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 100) / 100.;
+						return Math.round(multi * ((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 100)) / 100.;
 					case 3:
-						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 1000) / 1000.;
+						return Math.round(multi * ((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 1000)) / 1000.;
 					case 4:
-						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 10000) / 10000.;
+						return Math.round(multi * ((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * 10000)) / 10000.;
 					default:
-						return multi * Math.round((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * Math.pow(10, decimals)) / Math.pow(10, decimals);
+						return Math.round(multi * ((minAmount + (RNG.nextDouble() * (maxAmount - minAmount))) * Math.pow(10, decimals))) / Math.pow(10, decimals);
 				}
 			}
 			return Math.round(multi * (minAmount + (RNG.nextInt((int) (maxAmount - minAmount)))));
