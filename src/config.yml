@@ -26,6 +26,12 @@ physicalMoneyDrops: true
 moneyDropItem: EMERALD
 # Colors: https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/ChatColor.html
 moneyDropColor: GOLD
+# can any player pick up the reward item, or just the one who earned it?
+moneyDropOnlyForKiller: false
+
+# if we are splitting the rewards, everyone who did damage gets a portion proportional to the damage dealt
+# if true and physicalMoneyDrops:true, this implies moneyDropOnlyForKiller:true as well
+splitRewardsEvenly: false
 
 # how many decimal places does your currency have?
 moneyDecimalPlaces: 2

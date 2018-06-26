@@ -1,7 +1,7 @@
 name: CookieMinion
 description: A ultra-lightweight version of CookieMonster
 main: me.jascotty2.cookieminion.CookieMinion
-version: 1.0.3
+version: 1.1
 author: jascotty2
 loadbefore: [WorldGuard]
 softdepend: [Vault, CookieMonster]

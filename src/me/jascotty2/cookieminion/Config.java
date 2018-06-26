@@ -56,6 +56,12 @@ public class Config {
 	public boolean usePhysicalMoneyDrops = true;
 	public Material moneyDropItem = Material.EMERALD;
 	public ChatColor moneyDropColor = ChatColor.GOLD;
+	/**
+	 * If true, only the player that killed the entity can pick up the reward<br>
+	 * If that player is logged out, any player can claim the reward
+	 */
+	public boolean moneyDropOnlyForKiller = false;
+	public boolean splitRewardsEvenly = false;
 
 	public final List<String> disabledWorlds = new ArrayList<String>();
 
@@ -83,7 +89,9 @@ public class Config {
 		moneyDecimalPlaces = Math.max(0, cfg.getInt("moneyDecimalPlaces", moneyDecimalPlaces));
 		allowMobSpawnerRewards = cfg.getBoolean("allowMobSpawnerRewards", allowMobSpawnerRewards);
 		allowNaturalDeathItemDrops = cfg.getBoolean("allowNaturalDeathItemDrops", allowNaturalDeathItemDrops);
+		splitRewardsEvenly = cfg.getBoolean("splitRewardsEvenly", splitRewardsEvenly);
 		usePhysicalMoneyDrops = cfg.getBoolean("physicalMoneyDrops", usePhysicalMoneyDrops);
+		moneyDropOnlyForKiller = (splitRewardsEvenly && usePhysicalMoneyDrops) || cfg.getBoolean("moneyDropOnlyForKiller", moneyDropOnlyForKiller);
 		String s = cfg.getString("moneyDropItem");
 		if (s != null) {
 			Material m = Material.matchMaterial(s);
