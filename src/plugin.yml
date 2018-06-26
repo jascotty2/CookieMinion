@@ -3,6 +3,7 @@ description: A ultra-lightweight version of CookieMonster
 main: me.jascotty2.cookieminion.CookieMinion
 version: 1.0
 author: jascotty2
+loadbefore: [WorldGuard]
 softdepend: [Vault, CookieMonster]
 commands:
   cookieminion:

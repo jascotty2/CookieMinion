@@ -93,7 +93,7 @@ public class EntityListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onDamageByEntityEvent(EntityDamageByEntityEvent event) {
-		if (event.getEntity() instanceof LivingEntity && plugin.isEnabled(event.getEntity().getWorld())) {
+		if (event.getEntity() instanceof LivingEntity && plugin.isEnabled(event.getEntity().getLocation())) {
 			// killer isn't always set correctly
 			Entity dm = event.getDamager();
 			Player pc;
@@ -120,7 +120,7 @@ public class EntityListener implements Listener {
 				|| event.getCause() == DamageCause.MAGIC
 				|| event.getCause() == DamageCause.WITHER)
 				&& event.getEntity() instanceof LivingEntity
-				&& plugin.isEnabled(event.getEntity().getWorld())) {
+				&& plugin.isEnabled(event.getEntity().getLocation())) {
 			List<MetadataValue> mvs = event.getEntity().getMetadata("potionKiller");
 			MetadataValue mv = null;
 			if (mvs.size() > 1) {
@@ -141,7 +141,7 @@ public class EntityListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onPotionSplashEvent(PotionSplashEvent event) {
-		if (event.getEntity().getShooter() instanceof Player && plugin.isEnabled(event.getEntity().getWorld())) {
+		if (event.getEntity().getShooter() instanceof Player && plugin.isEnabled(event.getEntity().getLocation())) {
 			Player p = (Player) event.getEntity().getShooter();
 			for (LivingEntity e : event.getAffectedEntities()) {
 				if (p != e) {
@@ -160,7 +160,7 @@ public class EntityListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
-		if (plugin.isReward(event.getEntityType()) && plugin.isEnabled(event.getEntity().getWorld())) {
+		if (plugin.isReward(event.getEntityType()) && plugin.isEnabled(event.getEntity().getLocation())) {
 
 			// let's check if this was killed by a player
 			List<MetadataValue> mvs = event.getEntity().getMetadata("playerKiller");

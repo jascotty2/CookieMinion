@@ -20,6 +20,7 @@ Features:
 Improvements:
 - Uses the Vault API for economy, instead of trying to manually track all of the economy plugins out there
 - Damage tracking is linked to the entities, reducing the threads needed to clean up memory usage
+- WorldGuard disable regions is now a flag injected into WorldGuard itself ('cookiemonster')
 
 Commands:
 /cookieminion reload        Reloads configuration settings

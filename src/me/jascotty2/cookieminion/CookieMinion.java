@@ -18,13 +18,16 @@
  */
 package me.jascotty2.cookieminion;
 
+import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import java.util.logging.Level;
 import me.jascotty2.libv3.bukkit.util.QuietCommander;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class CookieMinion extends JavaPlugin {
@@ -34,6 +37,7 @@ public class CookieMinion extends JavaPlugin {
 	final EntityListener listener = new EntityListener(this);
 	final EconomyHandler econ = new EconomyHandler(this);
 	final QuietCommander commander = new QuietCommander(this);
+	RegionFlagManager regions = null;
 
 	@Override
 	public void onEnable() {
@@ -51,6 +55,12 @@ public class CookieMinion extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(listener, this);
 		if (config.usePhysicalMoneyDrops) {
 			listener.startItemTask();
+		}
+		
+		Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
+		if (plugin != null && (plugin instanceof WorldGuardPlugin)) {
+			regions = new RegionFlagManager((WorldGuardPlugin) plugin);
+			regions.hookWG();
 		}
 	}
 
@@ -83,10 +93,16 @@ public class CookieMinion extends JavaPlugin {
 		return true;
 	}
 
+	public boolean isEnabled(Location l) {
+		return l == null || 
+				!(config.disabledWorlds.contains(l.getWorld().getName()) || 
+				(regions != null && !regions.rewardsAllowed(l)));
+	}
+
 	public boolean isEnabled(World w) {
 		return w == null || config.disabledWorlds.isEmpty() || !config.disabledWorlds.contains(w.getName());
 	}
-
+	
 	public boolean isReward(EntityType e) {
 		return e != null && e.isAlive() && (config.defaultReward != null || config.rewards.containsKey(e));
 	}
