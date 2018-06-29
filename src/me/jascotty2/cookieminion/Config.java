@@ -138,6 +138,15 @@ public class Config {
 					rewards.put(EntityType.PLAYER, r = loadReward(def));
 				} else {
 					EntityType et = EntityType.fromName(k);
+					if(et == null) {
+						// some entitytypes don't match names with types (eg EVOKER = "evocation_illager")
+						for(EntityType t : EntityType.values()) {
+							if(t.name().equalsIgnoreCase(k)) {
+								et = t;
+								break;
+							}
+						}
+					}
 					if (et == null) {
 						plugin.getLogger().warning("Unknown EntityType for rewards: " + k);
 					} else if (!et.isAlive()) {
