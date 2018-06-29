@@ -171,10 +171,10 @@ public class EntityListener implements Listener {
 				mv = mvs.get(0);
 			}
 			if (mv != null && mv.value() instanceof List) {
-				List<Damage> l = (List<Damage>) mv.value();
-				for (Damage d : l) {
-					if (d.source.equals(player)) {
-						d.update(damage);
+				List l = (List) mv.value();
+				for (Object d : l) {
+					if (d instanceof Damage && ((Damage)d).source.equals(player)) {
+						((Damage)d).update(damage);
 						return;
 					}
 				}
@@ -202,6 +202,8 @@ public class EntityListener implements Listener {
 
 			// let's check if this was killed by a player
 			List<MetadataValue> mvs = event.getEntity().getMetadata("CookieMonster_playerKiller");
+			// clear metadata
+			event.getEntity().removeMetadata("CookieMonster_playerKiller", plugin);
 			MetadataValue mv = null;
 			if (mvs.size() > 1) {
 				for (MetadataValue dat : mvs) {
@@ -228,7 +230,7 @@ public class EntityListener implements Listener {
 					}
 				}
 			}
-
+			
 			// check if rewards are allowed for this kill
 			if (latest != 0 && System.currentTimeMillis() - latest < damageDelay
 					&& (plugin.config.allowMobSpawnerRewards
@@ -279,7 +281,7 @@ public class EntityListener implements Listener {
 			}
 			plugin.econ.subtractMoney((Player) e, cash);
 		}
-		if (cash != Double.NaN && cash != 0) {
+		if (cash != Double.MIN_VALUE && cash != 0) {
 			cashStr = plugin.econ.format(cash);
 			if (plugin.config.usePhysicalMoneyDrops && cash > 0) {
 				ItemStack it = new ItemStack(plugin.config.moneyDropItem);

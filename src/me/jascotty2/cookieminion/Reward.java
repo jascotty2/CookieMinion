@@ -98,7 +98,7 @@ public class Reward {
 
 	public double getRewardAmount(Player p, int decimals, double percentage) {
 		if (!useFixedReward && !useVariableReward) {
-			return Double.NaN;
+			return Double.MIN_VALUE;
 		}
 		double multi = 1;
 		if (multipliers != null && multiplierOrder != null && !multiplierOrder.isEmpty()) {

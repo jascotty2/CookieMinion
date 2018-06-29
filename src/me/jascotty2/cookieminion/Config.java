@@ -176,9 +176,9 @@ public class Config {
 	Reward loadReward(ConfigurationSection sec) {
 		Reward r = new Reward();
 		List<String> l;
-
-		if ((r.minAmount = sec.getDouble("min", Double.NEGATIVE_INFINITY))
-				- (r.maxAmount = sec.getDouble("max", Double.NEGATIVE_INFINITY)) != Double.NEGATIVE_INFINITY) {
+		
+		if ((r.minAmount = sec.getDouble("min", Double.MIN_VALUE)) != Double.MIN_VALUE
+				&& (r.maxAmount = sec.getDouble("max", Double.MIN_VALUE)) != Double.MIN_VALUE) {
 			r.useVariableReward = true;
 			if (r.minAmount > r.maxAmount) {
 				double temp = r.maxAmount;
@@ -189,9 +189,9 @@ public class Config {
 				r.useFixedReward = !(r.useVariableReward = false);
 			}
 		} else {
-			r.useFixedReward = (r.amount = sec.getDouble("min", Double.NEGATIVE_INFINITY)) != Double.NEGATIVE_INFINITY;
+			r.useFixedReward = (r.amount = sec.getDouble("amount", Double.MIN_VALUE)) != Double.MIN_VALUE;
 		}
-
+		
 		r.minXp = sec.getInt("xpmin", -1);
 		r.maxXp = sec.getInt("xpmax", -1);
 		if (r.minXp > r.maxXp) {
