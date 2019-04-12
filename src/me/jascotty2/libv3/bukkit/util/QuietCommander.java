@@ -126,4 +126,22 @@ public class QuietCommander implements CommandSender {
 	@Override
 	public void setOp(boolean bln) {
 	}
+
+    private final CommandSender.Spigot spigot = new CommandSender.Spigot(){
+
+        @Override
+        public void sendMessage(net.md_5.bungee.api.chat.BaseComponent component) {
+            QuietCommander.this.sendMessage(net.md_5.bungee.api.chat.TextComponent.toLegacyText(component));
+        }
+
+        @Override
+        public /* varargs */ void sendMessage(net.md_5.bungee.api.chat.BaseComponent ... components) {
+            QuietCommander.this.sendMessage(net.md_5.bungee.api.chat.TextComponent.toLegacyText(components));
+        }
+    };
+	
+	@Override
+	public Spigot spigot() {
+		return spigot;
+	}
 }

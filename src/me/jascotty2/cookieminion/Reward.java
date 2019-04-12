@@ -244,8 +244,8 @@ public class Reward {
 		Map extraData = null;
 
 		public Item(Material itemMaterial) {
-			if (itemMaterial == Material.SKULL) {
-				this.itemMaterial = Material.SKULL_ITEM;
+			if (itemMaterial == Material.SKELETON_WALL_SKULL) {
+				this.itemMaterial = Material.SKELETON_SKULL;
 			} else {
 				this.itemMaterial = itemMaterial;
 			}
@@ -282,7 +282,7 @@ public class Reward {
 												}
 											}
 										} else if (id instanceof Integer) {
-											toAdd = Enchantment.getById((Integer) id);
+											toAdd = LegacyEnchantments.getById((Integer) id);
 										}
 										if (toAdd != null) {
 											id = ((Map) enc).get("lvl");

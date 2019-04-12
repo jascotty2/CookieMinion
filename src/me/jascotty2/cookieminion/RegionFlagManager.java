@@ -18,15 +18,15 @@
  */
 package me.jascotty2.cookieminion;
 
+import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldguard.WorldGuard;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.Flag;
+import com.sk89q.worldguard.protection.association.RegionAssociable;
+import com.sk89q.worldguard.protection.flags.Flags;
 import com.sk89q.worldguard.protection.flags.StateFlag;
-import com.sk89q.worldguard.protection.flags.registry.SimpleFlagRegistry;
-import com.sk89q.worldguard.protection.managers.RegionManager;
+import com.sk89q.worldguard.protection.regions.RegionContainer;
+import com.sk89q.worldguard.protection.regions.RegionQuery;
 import java.util.logging.Level;
-import me.jascotty2.libv3.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
@@ -41,6 +41,24 @@ public class RegionFlagManager {
 	}
 
 	public void hookWG() {
+		try {
+			WorldGuard.getInstance().getFlagRegistry().register(FLAG);
+		} catch (Exception ex) {
+			Bukkit.getServer().getLogger().log(Level.WARNING, "Could not add flag {0} to WorldGuard", FLAG.getName());
+		}
+		/*
+		if(WorldGuard.getInstance().getFlagRegistry().get(FLAG.getName()) == null) {
+			FlagRegistry fr = WorldGuard.getInstance().getFlagRegistry();
+			if(fr instanceof SimpleFlagRegistry) {
+				boolean in = ((SimpleFlagRegistry) fr).isInitialized();
+				((SimpleFlagRegistry) fr).setInitialized(false);
+				fr.register(FLAG);
+				((SimpleFlagRegistry) fr).setInitialized(in);
+			} else {
+				Bukkit.getServer().getLogger().log(Level.WARNING, "Could not add flag {0} to WorldGuard", FLAG.getName());
+			}
+		}*/
+		/*
 		for (Flag<?> flag : DefaultFlag.getDefaultFlags()) {
 			if (flag.getName().equalsIgnoreCase(FLAG.getName())) {
 				return;
@@ -70,16 +88,15 @@ public class RegionFlagManager {
 
 		} catch (Exception ex) {
 			Bukkit.getServer().getLogger().log(Level.WARNING, "Could not add flag {0} to WorldGuard", FLAG.getName());
-		}
+		}*/
 	}
 
 	public boolean rewardsAllowed(Location l) {
-		final RegionManager mgr = wgPlugin.getRegionManager(l.getWorld());
-		if (mgr != null) {
-			ApplicableRegionSet matches = mgr.getApplicableRegions(l);
-
-			return matches.allows(FLAG);
-		}
-		return true;
+		
+		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
+		RegionQuery query = container.createQuery();
+		com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
+		return query.testState(loc, (RegionAssociable) null, Flags.BUILD);
+		
 	}
 }

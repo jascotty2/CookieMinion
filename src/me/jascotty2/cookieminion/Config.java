@@ -384,7 +384,7 @@ public class Config {
 										ok = false;
 									}
 								} else if (id instanceof Integer) {
-									if (Enchantment.getById((Integer) id) == null) {
+									if (LegacyEnchantments.getById((Integer) id) == null) {
 										plugin.getLogger().warning("Unknown Enchantment: " + id.toString());
 										ok = false;
 									}
@@ -421,7 +421,7 @@ public class Config {
 					}
 					break;
 				case "skullowner":
-					if (mat != Material.SKULL && mat != Material.SKULL_ITEM) {
+					if (mat != Material.SKELETON_SKULL && mat != Material.SKELETON_WALL_SKULL) {
 						errors = errors + (errors.isEmpty() ? "" : ", ") + k.toString();
 					}
 					break;
