@@ -29,6 +29,7 @@ import java.util.regex.Pattern;
 public class JsonParser {
 
 	// from -2147483648 up to 2147483647
+	// yes, it looks sloppy but it works!
 	static final String INT_PATTERN = "[+-]?((1?[0-9]{1,9})"
 			+ "|(20[0-9]{8})"
 			+ "|(213[0-9]{7})"

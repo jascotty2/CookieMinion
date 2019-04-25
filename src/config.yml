@@ -72,10 +72,10 @@ rewards:
         # you can also set some NBT values in curly brackets {}
         # if you specify a percentage range, the upper value is used for fortune 3 kills, with the midpoints for 1 & 2
         loot: 
-            - INK_SACK:[1-15]@2%50
+            - LAPIS_LAZULI@2%50
             - MELON%10
             - IRON_NUGGET%10
-            - SKULL{SkullOwner:"jascotty2"}%.5-2
+            - PLAYER_HEAD{SkullOwner:"jascotty2"}%.5-2
             - IRON_SWORD{Enchantments:[{id:21,lvl:1}]}%30
             - IRON_SWORD:[50-200]{Enchantments:[{id:"Mending"}]}%10
             - GOLD_NUGGET

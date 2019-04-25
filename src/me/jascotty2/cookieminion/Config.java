@@ -450,7 +450,7 @@ public class Config {
 					}
 					break;
 				case "skullowner":
-					if (mat != Material.SKELETON_SKULL && mat != Material.SKELETON_WALL_SKULL) {
+					if (mat != Material.PLAYER_HEAD) {
 						errors = errors + (errors.isEmpty() ? "" : ", ") + k.toString();
 					}
 					break;
