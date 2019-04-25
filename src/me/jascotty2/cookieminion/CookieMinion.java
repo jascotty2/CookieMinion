@@ -104,7 +104,8 @@ public class CookieMinion extends JavaPlugin {
 	}
 	
 	public boolean isReward(EntityType e) {
-		return e != null && e.isAlive() && (config.defaultReward != null || config.rewards.containsKey(e));
+		return e != EntityType.ARMOR_STAND && e != null && e.isAlive()
+				&& (config.defaultReward != null || config.rewards.containsKey(e));
 	}
 
 	public Reward getReward(EntityType e) {

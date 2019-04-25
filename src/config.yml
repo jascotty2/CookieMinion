@@ -36,6 +36,13 @@ splitRewardsEvenly: false
 # how many decimal places does your currency have?
 moneyDecimalPlaces: 2
 
+# You can provide currency multipliers for permissions groups for all monsters here
+# The player will be matched only once and with the first permission in the list
+# if you define a multiplier section in a reward section, that is used instead
+multipliers:
+    - cookiemonster.vip: 2
+    - cookiemonster.extra: 3
+
 # now for the actual rewards!
 rewards:
     # In general, any LivingEntity can be defined here.
@@ -43,6 +50,7 @@ rewards:
     # https://hub.spigotmc.org/javadocs/bukkit/org/bukkit/entity/EntityType.html 
     # the 'default' setting here is for anything that you don't have explicitly defined
     default:
+        enabled: false
         # you can specify an exact value
         amount: 3.14
         # or you can specify a range (if defined, we ignore the amount setting)
@@ -56,18 +64,18 @@ rewards:
         #xpmax: 6
         # You can provide currency multipliers for permissions groups, too
         # The player will be matched only once and with the first permission in the list
-        # Also note: other entities will use this 'default' setting if not defined
         multipliers:
             - cookiemonster.vip: 2
             - cookiemonster.extra: 3
         # You can also have extra drops added to the loot!
         # each item has a type or id, a data value [or a data range], max number, and a percentage chance to drop 
         # you can also set some NBT values in curly brackets {}
+        # if you specify a percentage range, the upper value is used for fortune 3 kills, with the midpoints for 1 & 2
         loot: 
             - INK_SACK:[1-15]@2%50
             - MELON%10
             - IRON_NUGGET%10
-            - SKULL{SkullOwner:"jascotty2"}%.5
+            - SKULL{SkullOwner:"jascotty2"}%.5-2
             - IRON_SWORD{Enchantments:[{id:21,lvl:1}]}%30
             - IRON_SWORD:[50-200]{Enchantments:[{id:"Mending"}]}%10
             - GOLD_NUGGET

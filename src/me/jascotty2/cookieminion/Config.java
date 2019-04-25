@@ -21,6 +21,7 @@ package me.jascotty2.cookieminion;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -38,7 +39,8 @@ import org.bukkit.entity.EntityType;
 public class Config {
 
 	final CookieMinion plugin;
-	final public HashMap<EntityType, Reward> rewards = new HashMap<EntityType, Reward>();
+	final public HashMap<EntityType, Reward> rewards = new HashMap();
+	final public LinkedHashMap<String, Double> multipliers = new LinkedHashMap();
 	public Reward defaultReward = null;
 	int moneyDecimalPlaces = 2;
 	/**
@@ -57,7 +59,8 @@ public class Config {
 	public Material moneyDropItem = Material.EMERALD;
 	public ChatColor moneyDropColor = ChatColor.GOLD;
 	/**
-	 * If true, only the player that killed the entity can pick up the reward<br>
+	 * If true, only the player that killed the entity can pick up the
+	 * reward<br>
 	 * If that player is logged out, any player can claim the reward
 	 */
 	public boolean moneyDropOnlyForKiller = false;
@@ -117,7 +120,19 @@ public class Config {
 				ok = false;
 			}
 		}
-
+		
+		multipliers.clear();
+		Object o = cfg.get("multipliers");
+		if(o != null) {
+			LinkedHashMap<String, Double> mult = loadMultipliers(o, "multipliers");
+			if (mult == null) {
+				plugin.getLogger().warning("multiplier setting error for multipliers");
+				ok = false;
+			} else if (!mult.isEmpty()) {
+				multipliers.putAll(mult);
+			}
+		}
+		
 		List<String> l = cfg.getStringList("disabledWorlds");
 		if (l != null && !l.isEmpty()) {
 			disabledWorlds.addAll(l);
@@ -138,10 +153,10 @@ public class Config {
 					rewards.put(EntityType.PLAYER, r = loadReward(def));
 				} else {
 					EntityType et = EntityType.fromName(k);
-					if(et == null) {
+					if (et == null) {
 						// some entitytypes don't match names with types (eg EVOKER = "evocation_illager")
-						for(EntityType t : EntityType.values()) {
-							if(t.name().equalsIgnoreCase(k)) {
+						for (EntityType t : EntityType.values()) {
+							if (t.name().equalsIgnoreCase(k)) {
 								et = t;
 								break;
 							}
@@ -162,11 +177,10 @@ public class Config {
 		}
 
 		// copy multiplier settings
-		if (defaultReward != null && defaultReward.multiplierOrder != null && defaultReward.multipliers != null) {
+		if (!multipliers.isEmpty()) {
 			for (Reward r : rewards.values()) {
-				if (r.multiplierOrder == null) {
-					r.multiplierOrder = defaultReward.multiplierOrder;
-					r.multipliers = defaultReward.multipliers;
+				if(r.multipliers == null) {
+					r.multipliers = multipliers;
 				}
 			}
 		}
@@ -185,7 +199,9 @@ public class Config {
 	Reward loadReward(ConfigurationSection sec) {
 		Reward r = new Reward();
 		List<String> l;
-		
+
+		r.enabled = sec.getBoolean("enabled", true);
+
 		if ((r.minAmount = sec.getDouble("min", Double.MIN_VALUE)) != Double.MIN_VALUE
 				&& (r.maxAmount = sec.getDouble("max", Double.MIN_VALUE)) != Double.MIN_VALUE) {
 			r.useVariableReward = true;
@@ -200,7 +216,7 @@ public class Config {
 		} else {
 			r.useFixedReward = (r.amount = sec.getDouble("amount", Double.MIN_VALUE)) != Double.MIN_VALUE;
 		}
-		
+
 		r.minXp = sec.getInt("xpmin", -1);
 		r.maxXp = sec.getInt("xpmax", -1);
 		if (r.minXp > r.maxXp) {
@@ -216,43 +232,15 @@ public class Config {
 			r.message = ChatColor.translateAlternateColorCodes('&', r.message);
 		}
 
-		Object mo = sec.get("multipliers");
-		if (mo instanceof List) {
-			r.multipliers = new HashMap<String, Double>();
-			r.multiplierOrder = new LinkedList<String>();
-			for (Object perm : (List) mo) {
-				if (perm instanceof Map) {
-					for (Map.Entry<String, Object> e : ((Map<String, Object>) perm).entrySet()) {
-						try {
-							double v = Double.parseDouble(e.getValue().toString());
-							r.multipliers.put(e.getKey(), v);
-							r.multiplierOrder.add(e.getKey());
-						} catch (NumberFormatException ex) {
-							plugin.getLogger().warning("multiplier setting error for " + sec.getCurrentPath() + ": " + e.getKey());
-						}
-					}
-				} else {
-					plugin.getLogger().warning("multiplier setting error for " + sec.getCurrentPath() + ": " + perm.toString());
-					r.incompleteLoadError = true;
-				}
+		Object o = sec.get("multipliers");
+		if (o != null) {
+			LinkedHashMap<String, Double> mult = loadMultipliers(o, sec.getCurrentPath());
+			if (mult == null) {
+				plugin.getLogger().warning("multiplier setting error for " + sec.getCurrentPath());
+				r.incompleteLoadError = true;
+			} else if (!mult.isEmpty()) {
+				r.multipliers = mult;
 			}
-		} else if (mo instanceof Map) {
-			// just in case someone missed the list format
-			r.multipliers = new HashMap<String, Double>();
-			r.multiplierOrder = new LinkedList<String>();
-			for (Map.Entry<String, Object> e : ((Map<String, Object>) mo).entrySet()) {
-				try {
-					double v = Double.parseDouble(e.getValue().toString());
-					r.multipliers.put(e.getKey(), v);
-					r.multiplierOrder.add(e.getKey());
-				} catch (NumberFormatException ex) {
-					plugin.getLogger().warning("multiplier setting error for " + sec.getCurrentPath() + ": " + e.getKey());
-					r.incompleteLoadError = true;
-				}
-			}
-		} else if (mo != null) {
-			plugin.getLogger().warning("multiplier setting error for " + sec.getCurrentPath());
-			r.incompleteLoadError = true;
 		}
 
 		if ((l = sec.getStringList("loot")) != null && !l.isEmpty()) {
@@ -266,7 +254,7 @@ public class Config {
 					+ "(:[0-9]+|:\\[[0-9]+\\-[0-9]+\\])?"
 					+ "(\\{.*\\})?"
 					+ "(@[0-9]+)?"
-					+ "(%([0-9]*\\.)?[0-9]+)?");
+					+ "(%([0-9]*\\.)?[0-9]+(\\-([0-9]*\\.)?[0-9]+)?)?");
 			for (String itmStr : l) {
 				Matcher m = itemPattern.matcher(itmStr);
 				if (m.matches()) {
@@ -315,7 +303,13 @@ public class Config {
 
 						// chance
 						if ((t = m.group(5)) != null) {
-							itm.chance = Double.parseDouble(t.substring(1));
+							if (!t.contains("-")) {
+								itm.chance = Double.parseDouble(t.substring(1));
+							} else {
+								int i = t.indexOf('-');
+								itm.chance = Double.parseDouble(t.substring(1, i));
+								itm.chanceHigh = Double.parseDouble(t.substring(i + 1));
+							}
 						}
 						r.loot.add(itm);
 					}
@@ -325,11 +319,11 @@ public class Config {
 				}
 			}
 			/*
-            - INK_SACK:[1-15]@2%90
-            - MELON%10
-            - IRON_NUGGET%10
-            - SKULL{SkullOwner:"jascotty2"}%.5
-            - IRON_SWORD{Enchantments:[id:Looting,lvl:1]}%1
+			 - INK_SACK:[1-15]@2%90
+			 - MELON%10
+			 - IRON_NUGGET%10
+			 - SKULL{SkullOwner:"jascotty2"}%.5
+			 - IRON_SWORD{Enchantments:[id:Looting,lvl:1]}%1
 			 */
 		}
 		r.maxLoot = sec.getInt("maxLoot", 0);
@@ -340,6 +334,41 @@ public class Config {
 		}
 
 		return r;
+	}
+
+	LinkedHashMap<String, Double> loadMultipliers(Object o, String path) {
+		if (o instanceof List) {
+			LinkedHashMap<String, Double> m = new LinkedHashMap();
+			for (Object perm : (List) o) {
+				if (perm instanceof Map) {
+					for (Map.Entry<String, Object> e : ((Map<String, Object>) perm).entrySet()) {
+						try {
+							double v = Double.parseDouble(e.getValue().toString());
+							m.put(e.getKey(), v);
+						} catch (NumberFormatException ex) {
+							plugin.getLogger().warning("multiplier setting error for " + path + ": " + e.getKey());
+						}
+					}
+				} else {
+					plugin.getLogger().warning("multiplier setting error for " + path + ": " + perm.toString());
+					return null;
+				}
+			}
+			return m;
+		} else if (o instanceof Map) {
+			LinkedHashMap<String, Double> m = new LinkedHashMap();
+			// just in case someone missed the list format
+			for (Map.Entry<String, Object> e : ((Map<String, Object>) o).entrySet()) {
+				try {
+					double v = Double.parseDouble(e.getValue().toString());
+					m.put(e.getKey(), v);
+				} catch (NumberFormatException ex) {
+					plugin.getLogger().warning("multiplier setting error for " + path + ": " + e.getKey());
+					return null;
+				}
+			}
+		}
+		return null;
 	}
 
 	/**

@@ -21,6 +21,7 @@ package me.jascotty2.cookieminion;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -46,7 +47,7 @@ public class Reward {
 	protected static final Random RNG = new Random();
 	private static final Pattern WORD_BOUNDS_PATTERN = Pattern.compile("\\b(\\w)");
 
-	public boolean useFixedReward = false, useVariableReward = false,
+	public boolean enabled = true, useFixedReward = false, useVariableReward = false,
 			replaceLoot = false, useDecimalAmounts = true,
 			playerStealsReward = false;
 	public double amount, minAmount, maxAmount;
@@ -55,21 +56,22 @@ public class Reward {
 	public String message = null;
 	public int maxLoot = 0;
 	public List<Item> loot = null;
-	public Map<String, Double> multipliers = null;
-	public List<String> multiplierOrder = null;
+	public LinkedHashMap<String, Double> multipliers = null;
 	/**
 	 * Internal/Future use: if the item does not have all of the settings from
 	 * the config definition
 	 */
 	public boolean incompleteLoadError = false;
 
-	public List<ItemStack> getRewardLoot() {
+	public List<ItemStack> getRewardLoot(short lootingLevel) {
 		if (loot == null || loot.isEmpty()) {
 			return Collections.EMPTY_LIST;
 		}
 		List<ItemStack> itms = new ArrayList<ItemStack>();
 		for (Item it : loot) {
-			if (RNG.nextDouble() * 100 < it.chance) {
+			final double chance = lootingLevel == 0 || it.chanceHigh < 0 ? it.chance
+				: (lootingLevel >= 3 ? it.chanceHigh : ((it.chanceHigh - it.chance) * (lootingLevel / 3.)) + it.chance);
+			if (RNG.nextDouble() * 100 < chance) {
 				itms.add(it.getItemStack());
 				if (maxLoot != 0 && itms.size() >= maxLoot) {
 					break;
@@ -101,9 +103,9 @@ public class Reward {
 			return Double.MIN_VALUE;
 		}
 		double multi = 1;
-		if (multipliers != null && multiplierOrder != null && !multiplierOrder.isEmpty()) {
-			for (String perm : multiplierOrder) {
-				if (p.hasPermission(perm) && multipliers.containsKey(perm)) {
+		if (multipliers != null) {
+			for (String perm : multipliers.keySet()) {
+				if (p.hasPermission(perm)) {
 					multi = multipliers.get(perm);
 					break;
 				}
@@ -238,6 +240,7 @@ public class Reward {
 
 		public final Material itemMaterial;
 		double chance = 100;
+		double chanceHigh = -1;
 		int amount = 1;
 		short data = 0;
 		short dataMax = 0;

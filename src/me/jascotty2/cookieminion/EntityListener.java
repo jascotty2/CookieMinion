@@ -26,7 +26,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Sound;
 import org.bukkit.World;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Item;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -76,6 +78,7 @@ public class EntityListener implements Listener {
 
 		Player source;
 		long attackTime;
+		short lootLevel;
 		double damage;
 
 		Damage(Player source) {
@@ -83,18 +86,23 @@ public class EntityListener implements Listener {
 			this.attackTime = System.currentTimeMillis();
 		}
 
-		Damage(Player source, double damage) {
+		Damage(Player source, double damage, ItemStack hand) {
 			this.source = source;
 			this.damage = damage;
 			this.attackTime = System.currentTimeMillis();
+			lootLevel = (short) Math.min(3, hand == null || !hand.containsEnchantment(Enchantment.LOOT_BONUS_MOBS) ? 0 : 
+					hand.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS));
 		}
 
-		void update(double damage) {
+		void update(double damage, ItemStack hand) {
 			this.damage += damage;
 			this.attackTime = System.currentTimeMillis();
+			lootLevel = (short) Math.min(3, hand == null || !hand.containsEnchantment(Enchantment.LOOT_BONUS_MOBS) ? 0 : 
+					hand.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS));
 		}
+		
 	}
-
+	
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onDamageByEntityEvent(EntityDamageByEntityEvent event) {
 		if (event.getEntity() instanceof LivingEntity && plugin.isEnabled(event.getEntity().getLocation())) {
@@ -174,18 +182,18 @@ public class EntityListener implements Listener {
 				List l = (List) mv.value();
 				for (Object d : l) {
 					if (d instanceof Damage && ((Damage)d).source.equals(player)) {
-						((Damage)d).update(damage);
+						((Damage)d).update(damage, player.getInventory().getItemInMainHand());
 						return;
 					}
 				}
-				l.add(new Damage(player, damage));
+				l.add(new Damage(player, damage, player.getInventory().getItemInMainHand()));
 			} else {
 				LinkedList<Damage> dmg = new LinkedList<Damage>();
-				dmg.add(new Damage(player, damage));
+				dmg.add(new Damage(player, damage, player.getInventory().getItemInMainHand()));
 				entity.setMetadata("CookieMonster_playerKiller", new FixedMetadataValue(plugin, dmg));
 			}
 		} else {
-			entity.setMetadata("CookieMonster_playerKiller", new FixedMetadataValue(plugin, new Damage(player)));
+			entity.setMetadata("CookieMonster_playerKiller", new FixedMetadataValue(plugin, new Damage(player, 0, player.getInventory().getItemInMainHand())));
 		}
 	}
 
@@ -198,12 +206,15 @@ public class EntityListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
-		if (plugin.isReward(event.getEntityType()) && plugin.isEnabled(event.getEntity().getLocation())) {
+		final LivingEntity entity = event.getEntity();
+		if (plugin.isReward(event.getEntityType()) && plugin.isEnabled(entity.getLocation())
+				// armor stands are marked as living for some reason
+				&& entity.getType() != EntityType.ARMOR_STAND) {
 
 			// let's check if this was killed by a player
-			List<MetadataValue> mvs = event.getEntity().getMetadata("CookieMonster_playerKiller");
+			List<MetadataValue> mvs = entity.getMetadata("CookieMonster_playerKiller");
 			// clear metadata
-			event.getEntity().removeMetadata("CookieMonster_playerKiller", plugin);
+			entity.removeMetadata("CookieMonster_playerKiller", plugin);
 			MetadataValue mv = null;
 			if (mvs.size() > 1) {
 				for (MetadataValue dat : mvs) {
@@ -215,33 +226,37 @@ public class EntityListener implements Listener {
 			} else if (!mvs.isEmpty()) {// && mvs.get(0).getOwningPlugin().equals(plugin)) {
 				mv = mvs.get(0);
 			}
-			boolean naturalDeath = true;
 			// check to see if this entity was just attacked
 			long latest = 0;
+			short latestLootLevel = 0;
 			List<Damage> l = null;
 			if (mv != null) {
 				if (mv.value() instanceof Damage) {
-					latest = ((Damage) mv.value()).attackTime;
+					final Damage d = (Damage) mv.value();
+					latest = d.attackTime;
+					latestLootLevel = d.lootLevel;
 				} else if (mv.value() instanceof List && !(l = (List) mv.value()).isEmpty()) {
 					for (Damage d : l) {
 						if (d.attackTime > latest) {
 							latest = d.attackTime;
+							latestLootLevel = d.lootLevel;
 						}
 					}
 				}
 			}
+			boolean naturalDeath = !(latest != 0 && System.currentTimeMillis() - latest < damageDelay);
 			
 			// check if rewards are allowed for this kill
-			if (latest != 0 && System.currentTimeMillis() - latest < damageDelay
-					&& (plugin.config.allowMobSpawnerRewards
-					|| event.getEntity().getMetadata("spawner_spawned").isEmpty())) {
+			if (!naturalDeath && (plugin.config.allowMobSpawnerRewards
+					|| entity.getMetadata("spawner_spawned").isEmpty())) {
 
 				// let's grab the reward and distribute the spoils!
 				Reward r = plugin.getReward(event.getEntityType());
 				if (r.replaceLoot) {
 					event.getDrops().clear();
 				}
-				event.getDrops().addAll(r.getRewardLoot());
+				// todo: increase chance if using looting?
+				event.getDrops().addAll(r.getRewardLoot(latestLootLevel));
 				event.setDroppedExp(r.getXP(event.getDroppedExp()));
 
 				// cash rewards
@@ -254,10 +269,10 @@ public class EntityListener implements Listener {
 						}
 						// distribute rewards
 						for (Damage d : l) {
-							rewardCashForKill(event.getEntity(), r, d.source, d.damage / total);
+							rewardCashForKill(entity, r, d.source, d.damage / total);
 						}
 					} else {
-						rewardCashForKill(event.getEntity(), r, ((Damage) mv.value()).source, 1);
+						rewardCashForKill(entity, r, ((Damage) mv.value()).source, 1);
 					}
 				}
 			}
