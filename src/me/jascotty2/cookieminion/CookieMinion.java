@@ -117,6 +117,11 @@ public class CookieMinion extends JavaPlugin {
 		if(!config.rewards.containsKey(e.getType()))
 			return config.defaultReward;
 		List<Reward> rl = config.rewards.get(e.getType());
+		// first strict check for names
+		for(Reward r : rl)
+			if(r.condition != null && (r.condition.name != null || r.condition.uuid != null) && r.condition.matches(e))
+				return r;
+		// then general condition match
 		for(Reward r : rl)
 			if(r.condition != null && r.condition.matches(e))
 				return r;
