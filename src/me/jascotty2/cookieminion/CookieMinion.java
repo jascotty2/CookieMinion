@@ -121,6 +121,10 @@ public class CookieMinion extends JavaPlugin {
 		for(Reward r : rl)
 			if(r.condition != null && r.condition.matches(e))
 				return r;
+		// return any that don't have a condition
+		for(Reward r : rl)
+			if(r.condition == null)
+				return r;
 		return null;
 	}
 }
