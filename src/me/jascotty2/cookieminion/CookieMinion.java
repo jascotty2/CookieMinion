@@ -19,6 +19,7 @@
 package me.jascotty2.cookieminion;
 
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
+import java.util.List;
 import java.util.logging.Level;
 import me.jascotty2.libv3.bukkit.util.QuietCommander;
 import org.bukkit.ChatColor;
@@ -27,6 +28,7 @@ import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.EntityType;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -104,11 +106,20 @@ public class CookieMinion extends JavaPlugin {
 	}
 	
 	public boolean isReward(EntityType e) {
+		// armor stands are marked as living for some reason
 		return e != EntityType.ARMOR_STAND && e != null && e.isAlive()
 				&& (config.defaultReward != null || config.rewards.containsKey(e));
 	}
 
-	public Reward getReward(EntityType e) {
-		return config.rewards.containsKey(e) ? config.rewards.get(e) : config.defaultReward;
+	public Reward getReward(LivingEntity e) {
+		if(e == null)
+			return null;
+		if(!config.rewards.containsKey(e.getType()))
+			return config.defaultReward;
+		List<Reward> rl = config.rewards.get(e.getType());
+		for(Reward r : rl)
+			if(r.condition != null && r.condition.matches(e))
+				return r;
+		return null;
 	}
 }

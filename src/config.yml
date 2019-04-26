@@ -103,6 +103,20 @@ rewards:
         # Of course, if the amount is negative, the killer pays the victim ;)
         stealReward: true
         message: "&aYou managed to steal &6$money$ &afrom &c$entity$!"
+    custom_player:
+        # you can additionally define custom entity types here ;)
+        condition:
+            type: PLAYER
+            name: jascotty2
+        min: 30
+        max: 80
+        message: "&aYou killed a dev!"
+    zombie_baby:
+        condition:
+            type: ZOMBIE
+            baby: true
+        min: 5
+        max: 8
         
         
     # More you can use!

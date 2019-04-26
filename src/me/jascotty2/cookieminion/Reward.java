@@ -50,6 +50,7 @@ public class Reward {
 	public boolean enabled = true, useFixedReward = false, useVariableReward = false,
 			replaceLoot = false, useDecimalAmounts = true,
 			playerStealsReward = false;
+	public RewardCondition condition = null;
 	public double amount, minAmount, maxAmount;
 	public int minXp = -1, maxXp = -1;
 	public List<String> commands = null;

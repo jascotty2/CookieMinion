@@ -39,7 +39,7 @@ import org.bukkit.entity.EntityType;
 public class Config {
 
 	final CookieMinion plugin;
-	final public HashMap<EntityType, Reward> rewards = new HashMap();
+	final public HashMap<EntityType, List<Reward>> rewards = new HashMap();
 	final public LinkedHashMap<String, Double> multipliers = new LinkedHashMap();
 	public Reward defaultReward = null;
 	int moneyDecimalPlaces = 2;
@@ -147,18 +147,42 @@ public class Config {
 				if (def == null) {
 					plugin.getLogger().warning("Unexpected configuration in rewards: " + k);
 				} else if (k.equalsIgnoreCase("default")) {
-					defaultReward = r = loadReward(def);
+					defaultReward = r = loadReward(null, def);
 				} else if (k.equalsIgnoreCase("player")) {
 					// name of player entity type not defined in the enum. *shrug*
-					rewards.put(EntityType.PLAYER, r = loadReward(def));
+					List<Reward> rl = rewards.get(EntityType.PLAYER);
+					if(rl == null) 
+						rewards.put(EntityType.PLAYER, rl = new LinkedList());
+					rl.add(r = loadReward(EntityType.PLAYER, def));
 				} else {
-					EntityType et = EntityType.fromName(k);
+					EntityType et = null;
+					// first try "condition"
+					ConfigurationSection cond = def.getConfigurationSection("condition");
+					if(cond != null && (s = cond.getString("type")) != null) {
+						et = EntityType.fromName(s);
+						if (et == null) {
+							// some entitytypes don't match names with types (eg EVOKER = "evocation_illager")
+							for (EntityType t : EntityType.values()) {
+								if (t.name().equalsIgnoreCase(s)) {
+									et = t;
+									break;
+								}
+							}
+						}
+						if (et == null) {
+							plugin.getLogger().warning("Unknown EntityType for rewards: " + s + " in rewards." + k);
+						}
+					}
+					// try again with the key name
 					if (et == null) {
-						// some entitytypes don't match names with types (eg EVOKER = "evocation_illager")
-						for (EntityType t : EntityType.values()) {
-							if (t.name().equalsIgnoreCase(k)) {
-								et = t;
-								break;
+						et = EntityType.fromName(k);
+						if (et == null) {
+							// some entitytypes don't match names with types (eg EVOKER = "evocation_illager")
+							for (EntityType t : EntityType.values()) {
+								if (t.name().equalsIgnoreCase(k)) {
+									et = t;
+									break;
+								}
 							}
 						}
 					}
@@ -167,7 +191,10 @@ public class Config {
 					} else if (!et.isAlive()) {
 						plugin.getLogger().warning("rewards." + k + " does not define a valid LivingEntity");
 					} else {
-						rewards.put(et, r = loadReward(def));
+						List<Reward> rl = rewards.get(et);
+						if(rl == null) 
+							rewards.put(et, rl = new LinkedList());
+						rl.add(r = loadReward(et, def));
 					}
 				}
 				if (r == null || r.incompleteLoadError) {
@@ -178,17 +205,21 @@ public class Config {
 
 		// copy multiplier settings
 		if (!multipliers.isEmpty()) {
-			for (Reward r : rewards.values()) {
-				if(r.multipliers == null) {
-					r.multipliers = multipliers;
+			for (List<Reward> rl : rewards.values()) {
+				for(Reward r : rl) {
+					if(r.multipliers == null) {
+						r.multipliers = multipliers;
+					}
 				}
 			}
 		}
 		// default message
 		if (defaultReward != null && defaultReward.message != null) {
-			for (Reward r : rewards.values()) {
-				if (r.message == null) {
-					r.message = defaultReward.message;
+			for (List<Reward> rl : rewards.values()) {
+				for(Reward r : rl) {
+					if (r.message == null) {
+						r.message = defaultReward.message;
+					}
 				}
 			}
 		}
@@ -196,7 +227,7 @@ public class Config {
 		return ok;
 	}
 
-	Reward loadReward(ConfigurationSection sec) {
+	Reward loadReward(EntityType et, ConfigurationSection sec) {
 		Reward r = new Reward();
 		List<String> l;
 
@@ -333,6 +364,13 @@ public class Config {
 			r.commands = new ArrayList<String>(l);
 		}
 
+		if((sec = sec.getConfigurationSection("condition")) != null) {
+			r.condition = new RewardCondition(et);
+			r.condition.name = sec.getString("name");
+			if(sec.isSet("baby")) {
+				r.condition.isBaby = sec.getBoolean("baby");
+			}
+		}
 		return r;
 	}
 

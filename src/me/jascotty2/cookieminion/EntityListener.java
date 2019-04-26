@@ -207,9 +207,12 @@ public class EntityListener implements Listener {
 	@EventHandler(priority = EventPriority.MONITOR)
 	public void onEntityDeath(EntityDeathEvent event) {
 		final LivingEntity entity = event.getEntity();
-		if (plugin.isReward(event.getEntityType()) && plugin.isEnabled(entity.getLocation())
-				// armor stands are marked as living for some reason
-				&& entity.getType() != EntityType.ARMOR_STAND) {
+		final Reward r;
+		// armor stands are marked as living for some reason
+		if (entity.getType() != EntityType.ARMOR_STAND
+				&& plugin.isReward(event.getEntityType())
+				&& plugin.isEnabled(entity.getLocation())
+				&& (r = plugin.getReward(event.getEntity())) != null) {
 
 			// let's check if this was killed by a player
 			List<MetadataValue> mvs = entity.getMetadata("CookieMonster_playerKiller");
@@ -251,7 +254,7 @@ public class EntityListener implements Listener {
 					|| entity.getMetadata("spawner_spawned").isEmpty())) {
 
 				// let's grab the reward and distribute the spoils!
-				Reward r = plugin.getReward(event.getEntityType());
+				
 				if (r.replaceLoot) {
 					event.getDrops().clear();
 				}
