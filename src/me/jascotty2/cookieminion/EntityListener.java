@@ -230,24 +230,25 @@ public class EntityListener implements Listener {
 				mv = mvs.get(0);
 			}
 			// check to see if this entity was just attacked
-			long latest = 0;
-			short latestLootLevel = 0;
+			Damage latest = null;
 			List<Damage> l = null;
 			if (mv != null) {
 				if (mv.value() instanceof Damage) {
 					final Damage d = (Damage) mv.value();
-					latest = d.attackTime;
-					latestLootLevel = d.lootLevel;
+					latest = d;
 				} else if (mv.value() instanceof List && !(l = (List) mv.value()).isEmpty()) {
 					for (Damage d : l) {
-						if (d.attackTime > latest) {
-							latest = d.attackTime;
-							latestLootLevel = d.lootLevel;
+						if (latest == null || d.attackTime > latest.attackTime) {
+							latest = d;
 						}
 					}
 				}
 			}
-			boolean naturalDeath = !(latest != 0 && System.currentTimeMillis() - latest < damageDelay);
+			boolean naturalDeath = !(latest != null && System.currentTimeMillis() - latest.attackTime < damageDelay);
+			
+			if(!naturalDeath && (r.condition != null && r.condition.permission != null)
+					&& latest.source.hasPermission(r.condition.permission))
+				return;
 			
 			// check if rewards are allowed for this kill
 			if (!naturalDeath && (plugin.config.allowMobSpawnerRewards
@@ -258,8 +259,7 @@ public class EntityListener implements Listener {
 				if (r.replaceLoot) {
 					event.getDrops().clear();
 				}
-				// todo: increase chance if using looting?
-				event.getDrops().addAll(r.getRewardLoot(latestLootLevel));
+				event.getDrops().addAll(r.getRewardLoot(latest == null ? 0 : latest.lootLevel));
 				event.setDroppedExp(r.getXP(event.getDroppedExp()));
 
 				// cash rewards
@@ -272,6 +272,7 @@ public class EntityListener implements Listener {
 						}
 						// distribute rewards
 						for (Damage d : l) {
+							//if(r.condition == null || r.condition.permission == null || d.source.hasPermission(r.condition.permission))
 							rewardCashForKill(entity, r, d.source, d.damage / total);
 						}
 					} else {

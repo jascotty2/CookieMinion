@@ -3,10 +3,11 @@ package me.jascotty2.cookieminion;
 import org.bukkit.entity.Ageable;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.Player;
 
 public class RewardCondition {
 	public final EntityType type;
-	public String name = null;
+	public String name = null, uuid = null, permission = null;
 	public Boolean isBaby = null;
 	public RewardCondition(EntityType type) {
 		this.type = type;
@@ -22,6 +23,13 @@ public class RewardCondition {
 				if(n == null || !n.equals(name))
 					return false;
 			}
+		}
+		if(uuid != null) {
+			if(e instanceof Player) {
+				if(!((Player) e).getUniqueId().toString().equalsIgnoreCase(uuid))
+					return false;
+			} else
+				return false;
 		}
 		if(isBaby != null) {
 			if(e instanceof Ageable) {
