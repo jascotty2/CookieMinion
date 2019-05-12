@@ -33,7 +33,7 @@ public class RegionFlagManager {
 
 	WorldGuardPlugin wgPlugin;
 	boolean hookInstalled = false;
-	public static final StateFlag FLAG = new StateFlag("cookiemonster", true);
+	static StateFlag FLAG = new StateFlag("cookiemonster", true);
 
 	public RegionFlagManager(WorldGuardPlugin wgPlugin) {
 		this.wgPlugin = wgPlugin;
@@ -44,6 +44,7 @@ public class RegionFlagManager {
 			WorldGuard.getInstance().getFlagRegistry().register(FLAG);
 		} catch (Exception ex) {
 			Bukkit.getServer().getLogger().log(Level.WARNING, "Could not add flag {0} to WorldGuard", FLAG.getName());
+			FLAG = (StateFlag) WorldGuard.getInstance().getFlagRegistry().get(FLAG.getName());
 		}
 	}
 

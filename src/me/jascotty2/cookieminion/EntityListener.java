@@ -24,6 +24,8 @@ import java.util.List;
 import java.util.logging.Level;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.Sound;
 import org.bukkit.World;
 import org.bukkit.enchantments.Enchantment;
@@ -46,6 +48,7 @@ import org.bukkit.event.entity.EntityPickupItemEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.metadata.MetadataValue;
 import org.bukkit.projectiles.ProjectileSource;
@@ -212,7 +215,8 @@ public class EntityListener implements Listener {
 		if (entity.getType() != EntityType.ARMOR_STAND
 				&& plugin.isReward(event.getEntityType())
 				&& plugin.isEnabled(entity.getLocation())
-				&& (r = plugin.getReward(event.getEntity())) != null) {
+				&& (r = plugin.getReward(event.getEntity())) != null
+				&& r.enabled) {
 
 			// let's check if this was killed by a player
 			List<MetadataValue> mvs = entity.getMetadata("CookieMonster_playerKiller");
@@ -247,7 +251,7 @@ public class EntityListener implements Listener {
 			boolean naturalDeath = !(latest != null && System.currentTimeMillis() - latest.attackTime < damageDelay);
 			
 			if(!naturalDeath && (r.condition != null && r.condition.permission != null)
-					&& latest.source.hasPermission(r.condition.permission))
+					&& !latest.source.hasPermission(r.condition.permission))
 				return;
 			
 			// check if rewards are allowed for this kill
@@ -256,11 +260,25 @@ public class EntityListener implements Listener {
 
 				// let's grab the reward and distribute the spoils!
 				
-				if (r.replaceLoot) {
-					event.getDrops().clear();
+				if(entity instanceof Player) {
+					final Location loc = entity.getLocation();
+					for(ItemStack it : r.getRewardLoot(latest == null ? 0 : latest.lootLevel)) {
+						if(it.getType() == Material.PLAYER_HEAD && ((SkullMeta) it.getItemMeta()).getOwner().equalsIgnoreCase("@victim")) {
+							SkullMeta skull = (SkullMeta) it.getItemMeta();
+							skull.setOwningPlayer((Player) entity);
+							if(skull.getDisplayName() == null || skull.getDisplayName().isEmpty())
+								skull.setDisplayName(ChatColor.YELLOW + ((Player) entity).getDisplayName() + "'s Head");
+							it.setItemMeta(skull);
+						}
+						entity.getWorld().dropItemNaturally(loc, it);
+					}
+				} else {
+					if (r.replaceLoot) {
+						event.getDrops().clear();
+					}
+					event.getDrops().addAll(r.getRewardLoot(latest == null ? 0 : latest.lootLevel));
+					event.setDroppedExp(r.getXP(event.getDroppedExp()));
 				}
-				event.getDrops().addAll(r.getRewardLoot(latest == null ? 0 : latest.lootLevel));
-				event.setDroppedExp(r.getXP(event.getDroppedExp()));
 
 				// cash rewards
 				if (plugin.econ.enabled()) {
