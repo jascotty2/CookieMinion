@@ -45,6 +45,7 @@ import org.bukkit.event.entity.EntityDamageEvent.DamageCause;
 import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PotionSplashEvent;
 import org.bukkit.event.entity.EntityPickupItemEvent;
+import org.bukkit.event.inventory.InventoryPickupItemEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -379,6 +380,13 @@ public class EntityListener implements Listener {
 					plugin.getLogger().log(Level.SEVERE, "Unexpected Conflicting cash item found", e);
 				}
 			}
+		}
+	}
+	
+	public void onInventoryPickupItemEvent(InventoryPickupItemEvent event) {
+		final Item eit = event.getItem();
+		if (eit.hasMetadata("CookieMonster_MoneyDrop")) {
+			event.setCancelled(true);
 		}
 	}
 
