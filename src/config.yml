@@ -96,9 +96,14 @@ rewards:
             - /say &9@p &ajust killed a $entity$ and earned &6$money$!
     
     PLAYER:
+        condition:
+            type: PLAYER
+            permission: cookiemonster.thief
         # Player config has some special settings
         min: 20
         max: 50
+        loot:
+        - PLAYER_HEAD{SkullOwner:"@victim"}%1
         # If stealing is enabled, killing the player will drop some of their money
         # Of course, if the amount is negative, the killer pays the victim ;)
         stealReward: true
@@ -108,6 +113,7 @@ rewards:
         condition:
             type: PLAYER
             name: jascotty2
+            # you can also define a uuid instead of a player name
         min: 30
         max: 80
         message: "&aYou killed a dev!"
