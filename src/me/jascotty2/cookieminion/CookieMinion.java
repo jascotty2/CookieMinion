@@ -40,6 +40,15 @@ public class CookieMinion extends JavaPlugin {
 	final EconomyHandler econ = new EconomyHandler(this);
 	final QuietCommander commander = new QuietCommander(this);
 	RegionFlagManager regions = null;
+	
+	@Override
+	public void onLoad() {
+		Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
+		if (plugin != null && (plugin instanceof WorldGuardPlugin)) {
+			regions = new RegionFlagManager((WorldGuardPlugin) plugin);
+			regions.hookWG();
+		}
+	}
 
 	@Override
 	public void onEnable() {
@@ -57,12 +66,6 @@ public class CookieMinion extends JavaPlugin {
 		getServer().getPluginManager().registerEvents(listener, this);
 		if (config.usePhysicalMoneyDrops) {
 			listener.startItemTask();
-		}
-		
-		Plugin plugin = getServer().getPluginManager().getPlugin("WorldGuard");
-		if (plugin != null && (plugin instanceof WorldGuardPlugin)) {
-			regions = new RegionFlagManager((WorldGuardPlugin) plugin);
-			regions.hookWG();
 		}
 	}
 

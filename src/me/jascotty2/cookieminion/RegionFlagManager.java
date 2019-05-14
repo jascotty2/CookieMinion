@@ -45,11 +45,14 @@ public class RegionFlagManager {
 		} catch (Exception ex) {
 			Bukkit.getServer().getLogger().log(Level.WARNING, "Could not add flag {0} to WorldGuard", FLAG.getName());
 			FLAG = (StateFlag) WorldGuard.getInstance().getFlagRegistry().get(FLAG.getName());
+			if(FLAG == null)
+				Bukkit.getServer().getLogger().log(Level.WARNING, "Could not hook WorldGuard");
 		}
 	}
 
 	public boolean rewardsAllowed(Location l) {
-		
+		if(FLAG == null) 
+			return true;
 		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
 		RegionQuery query = container.createQuery();
 		com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
