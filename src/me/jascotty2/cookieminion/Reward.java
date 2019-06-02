@@ -256,7 +256,7 @@ public class Reward {
 		}
 
 		public ItemStack getItemStack() {
-			ItemStack it = new ItemStack(itemMaterial, amount);
+			ItemStack it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
 			if (data != dataMax) {
 				it.setDurability((short) (data + RNG.nextInt(dataMax - data)));
 			} else if (data != 0) {
