@@ -68,7 +68,7 @@ public class Reward {
 		if (loot == null || loot.isEmpty()) {
 			return Collections.EMPTY_LIST;
 		}
-		List<ItemStack> itms = new ArrayList<ItemStack>();
+		List<ItemStack> itms = new ArrayList();
 		for (Item it : loot) {
 			final double chance = lootingLevel == 0 || it.chanceHigh < 0 ? it.chance
 				: (lootingLevel >= 3 ? it.chanceHigh : ((it.chanceHigh - it.chance) * (lootingLevel / 3.)) + it.chance);
@@ -138,7 +138,7 @@ public class Reward {
 	}
 
 	public void sendMessage(Player p, Entity entity, String reward) {
-		if (message != null && p != null) {
+		if (message != null && !message.isEmpty() && p != null) {
 			String msg = message.replace("$money$", reward);// a $entity$ and earned $$money$!
 			if (msg.contains("$entity$")) {
 				if (entity instanceof Player) {
