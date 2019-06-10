@@ -35,6 +35,8 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
 public class Config {
 
@@ -120,10 +122,10 @@ public class Config {
 				ok = false;
 			}
 		}
-		
+
 		multipliers.clear();
 		Object o = cfg.get("multipliers");
-		if(o != null) {
+		if (o != null) {
 			LinkedHashMap<String, Double> mult = loadMultipliers(o, "multipliers");
 			if (mult == null) {
 				plugin.getLogger().warning("multiplier setting error for multipliers");
@@ -132,7 +134,7 @@ public class Config {
 				multipliers.putAll(mult);
 			}
 		}
-		
+
 		List<String> l = cfg.getStringList("disabledWorlds");
 		if (l != null && !l.isEmpty()) {
 			disabledWorlds.addAll(l);
@@ -151,14 +153,15 @@ public class Config {
 				} else if (k.equalsIgnoreCase("player")) {
 					// name of player entity type not defined in the enum. *shrug*
 					List<Reward> rl = rewards.get(EntityType.PLAYER);
-					if(rl == null) 
+					if (rl == null) {
 						rewards.put(EntityType.PLAYER, rl = new LinkedList());
+					}
 					rl.add(r = loadReward(EntityType.PLAYER, def));
 				} else {
 					EntityType et = null;
 					// first try "condition"
 					ConfigurationSection cond = def.getConfigurationSection("condition");
-					if(cond != null && (s = cond.getString("type")) != null) {
+					if (cond != null && (s = cond.getString("type")) != null) {
 						et = EntityType.fromName(s);
 						if (et == null) {
 							// some entitytypes don't match names with types (eg EVOKER = "evocation_illager")
@@ -192,8 +195,9 @@ public class Config {
 						plugin.getLogger().warning("rewards." + k + " does not define a valid LivingEntity");
 					} else {
 						List<Reward> rl = rewards.get(et);
-						if(rl == null) 
+						if (rl == null) {
 							rewards.put(et, rl = new LinkedList());
+						}
 						rl.add(r = loadReward(et, def));
 					}
 				}
@@ -206,8 +210,8 @@ public class Config {
 		// copy multiplier settings
 		if (!multipliers.isEmpty()) {
 			for (List<Reward> rl : rewards.values()) {
-				for(Reward r : rl) {
-					if(r.multipliers == null) {
+				for (Reward r : rl) {
+					if (r.multipliers == null) {
 						r.multipliers = multipliers;
 					}
 				}
@@ -216,7 +220,7 @@ public class Config {
 		// default message
 		if (defaultReward != null && defaultReward.message != null) {
 			for (List<Reward> rl : rewards.values()) {
-				for(Reward r : rl) {
+				for (Reward r : rl) {
 					if (r.message == null) {
 						r.message = defaultReward.message;
 					}
@@ -317,7 +321,7 @@ public class Config {
 						// nbt tagData
 						if ((t = m.group(3)) != null) {
 							try {
-								if (!dataValid(mat, itm.extraData = JsonParser.parseJSON(t), itmStr)) {
+								if (!dataValid(mat, itm.extraData = lowercaseKeys(JsonParser.parseJSON(t)), itmStr)) {
 									r.incompleteLoadError = true;
 								}
 							} catch (ParseException ex) {
@@ -364,12 +368,12 @@ public class Config {
 			r.commands = new ArrayList<String>(l);
 		}
 
-		if((sec = sec.getConfigurationSection("condition")) != null) {
+		if ((sec = sec.getConfigurationSection("condition")) != null) {
 			r.condition = new RewardCondition(et);
 			r.condition.name = sec.getString("name");
 			r.condition.uuid = sec.getString("uuid");
 			r.condition.permission = sec.getString("permission");
-			if(sec.isSet("baby")) {
+			if (sec.isSet("baby")) {
 				r.condition.isBaby = sec.getBoolean("baby");
 			}
 		}
@@ -411,6 +415,32 @@ public class Config {
 		return null;
 	}
 
+	Map lowercaseKeys(Map<String, Object> m) {
+		for (String k : m.keySet().toArray(new String[0])) {
+			Object o = m.get(k);
+			if (o instanceof Map) {
+				lowercaseKeys((Map) o);
+			} else if (o instanceof List) {
+				lowercaseKeys((List) o);
+			}
+			if (!k.toLowerCase().equals(k)) {
+				m.remove(k);
+				m.put(k.toLowerCase(), o);
+			}
+		}
+		return m;
+	}
+
+	void lowercaseKeys(List l) {
+		l.stream().forEach((o) -> {
+			if (o instanceof Map) {
+				lowercaseKeys((Map) o);
+			} else if (o instanceof List) {
+				lowercaseKeys((List) o);
+			}
+		});
+	}
+
 	/**
 	 * More of a quick sanity check than a thorough validation
 	 *
@@ -442,7 +472,8 @@ public class Config {
 								if (id instanceof String) {
 									boolean test = false;
 									for (Enchantment ech : Enchantment.values()) {
-										if ((ech.getName() != null && ech.getName().equalsIgnoreCase(id.toString()))
+										if (ech.getName().equalsIgnoreCase(id.toString())
+												|| ech.getKey().getKey().equalsIgnoreCase(id.toString())
 												|| ech.getClass().getSimpleName().equalsIgnoreCase(id.toString())) {
 											test = true;
 											break;
@@ -499,6 +530,46 @@ public class Config {
 						errors = errors + (errors.isEmpty() ? "" : ", ") + k.toString();
 					}
 					break;
+				case "potion": // check if it's a valid potion
+				{
+					String pot = dat.get(k).toString();
+					if (pot.startsWith("minecraft:")) {
+						pot = pot.substring("minecraft:".length());
+					}
+					boolean found = false;
+					for (PotionType t : PotionType.values()) {
+						if (t.name().equalsIgnoreCase(pot) || (t.getEffectType() != null && t.getEffectType().getName().equalsIgnoreCase(pot))) {
+							dat.put(k, t.name());
+							found = true;
+							break;
+						}
+					}
+					if (!found) {
+						plugin.getLogger().warning("Unknown Potion: " + pot);
+					}
+				}
+				break;
+				case "custompotioneffects": // check if it's a valid potion
+				{
+					if ((o = dat.get(k)) instanceof List) {
+						for (Object po : (List) o) {
+							if (po instanceof Map) {
+								PotionEffectType type = null;
+								Map m = ((Map) po);
+								Object id = m.get("id");
+								if (id instanceof String) {
+									type = PotionEffectType.getByName((String) id);
+								} else if (id instanceof Integer) {
+									type = PotionEffectType.getById((Integer) id);
+								}
+								if (type == null) {
+									plugin.getLogger().warning("Unknown Custom Potion Effect Id: " + JsonParser.encodeJSON(m));
+								}
+							}
+						}
+					}
+				}
+				break;
 				// custom tags
 				case "title":
 				case "author":

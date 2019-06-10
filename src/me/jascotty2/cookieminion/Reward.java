@@ -40,7 +40,12 @@ import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.BookMeta;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.inventory.meta.PotionMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.potion.PotionData;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.bukkit.potion.PotionType;
 
 public class Reward {
 
@@ -279,7 +284,8 @@ public class Reward {
 										Object id = ((Map) enc).get("id");
 										if (id instanceof String) {
 											for (Enchantment ech : Enchantment.values()) {
-												if ((ech.getName() != null && ech.getName().equalsIgnoreCase(id.toString()))
+												if (ech.getName().equalsIgnoreCase(id.toString())
+														|| ech.getKey().getKey().equalsIgnoreCase(id.toString())
 														|| ech.getClass().getSimpleName().equalsIgnoreCase(id.toString())) {
 													toAdd = ech;
 													break;
@@ -294,6 +300,45 @@ public class Reward {
 												lvl = (Integer) id;
 											}
 											itm.addEnchant(toAdd, lvl, true);
+										}
+									}
+								}
+							}
+							break;
+						case "potion":
+							if (itm instanceof PotionMeta) {
+								String pot = extraData.get(k).toString().toUpperCase();
+								for(PotionType t : PotionType.values()) {
+									if(t.name().equals(pot)) {// || (t.getEffectType() != null && t.getEffectType().getName().equalsIgnoreCase(pot))) {
+										PotionMeta pm = (PotionMeta) itm;
+										pm.setBasePotionData(new PotionData(t));
+										break;
+									}
+								}
+							}
+							break;
+						case "custompotioneffects":
+							if (itm instanceof PotionMeta && (o = extraData.get(k)) instanceof List) {
+								PotionMeta pm = (PotionMeta) itm;
+								for (Object po : (List) o) {
+									// to fit the mc format for this, expecting id, duration, amplifier
+									if (po instanceof Map) {
+										PotionEffectType type = null;
+										Map m = ((Map) po);
+										Object id = m.get("id");
+										if (id instanceof String) {
+											type = PotionEffectType.getByName((String) id);
+										} else if(id instanceof Integer) {
+											type = PotionEffectType.getById((Integer) id);
+										}
+										if(type != null) {
+											pm.addCustomEffect(new PotionEffect(type, 
+												m.get("duration") instanceof Integer ? (Integer) m.get("duration") : 1200,
+												m.get("amplifier") instanceof Integer ? (Integer) m.get("amplifier") : 0,
+												m.get("ambient") instanceof Integer ? ((Integer) m.get("ambient")) != 0 : false,
+												m.get("showparticles") instanceof Integer ? ((Integer) m.get("showparticles")) != 0 : true,
+												m.get("showicon") instanceof Integer ? ((Integer) m.get("showicon")) != 0 : true
+											), true);
 										}
 									}
 								}
