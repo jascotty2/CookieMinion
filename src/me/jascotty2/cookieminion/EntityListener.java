@@ -356,9 +356,13 @@ public class EntityListener implements Listener {
 	public void onPlayerPickupItem(EntityPickupItemEvent event) {
 		String cashStr;
 		final ItemMeta m;
-		if (event.getItem().hasMetadata("CookieMonster_MoneyDrop")
-				&& (m = event.getItem().getItemStack().getItemMeta()).hasLore()
-				&& (cashStr = m.getLore().get(0)).startsWith(lorePrefix)) {
+        List<String> lore;
+		if (/*event.getItem().hasMetadata("CookieMonster_MoneyDrop")
+				&&*/ 
+                (m = event.getItem().getItemStack().getItemMeta()) != null
+                && (lore = m.getLore()) != null
+                && !lore.isEmpty()
+				&& (cashStr = lore.get(0)).startsWith(lorePrefix)) {
 			event.setCancelled(true);
 			if (event.getEntity() instanceof Player) {
 
