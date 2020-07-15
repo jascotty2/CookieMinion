@@ -241,7 +241,7 @@ public class EntityListener implements Listener {
 				if (mv.value() instanceof Damage) {
 					final Damage d = (Damage) mv.value();
 					latest = d;
-				} else if (mv.value() instanceof List && !(l = (List) mv.value()).isEmpty()) {
+				} else if (mv.value() instanceof List && !(l = (List) mv.value()).isEmpty() && l.get(0) instanceof Damage) {
 					for (Damage d : l) {
 						if (latest == null || d.attackTime > latest.attackTime) {
 							latest = d;

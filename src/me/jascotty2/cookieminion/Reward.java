@@ -77,11 +77,11 @@ public class Reward {
 		}
 		List<ItemStack> itms = new ArrayList();
 		List<Item> lootTable;
-		if(maxLoot != 0) {
+		if(maxLoot <= 0) {
 			lootTable = loot;
 		} else {
 			lootTable = new ArrayList(loot);
-			Collections.shuffle(lootTable);
+			Collections.shuffle(lootTable, RNG);
 		}
 		for (Item it : lootTable) {
 			final double chance = lootingLevel == 0 || it.chanceHigh < 0 ? it.chance
@@ -454,6 +454,11 @@ public class Reward {
 				it.setItemMeta(itm);
 			}
 			return it;
+		}
+
+		@Override
+		public String toString() {
+			return "Item{" + "itemMaterial=" + itemMaterial + ", chance=" + chance + ", chanceHigh=" + chanceHigh + ", amount=" + amount + ", data=" + data + ", dataMax=" + dataMax + ", extraData=" + extraData + '}';
 		}
 	}
 

@@ -115,19 +115,25 @@ public class CookieMinion extends JavaPlugin {
 	}
 
 	public Reward getReward(LivingEntity e) {
-		if(e == null)
+		if (e == null) {
 			return null;
-		if(!config.rewards.containsKey(e.getType()))
+		}
+		if (!config.rewards.containsKey(e.getType())) {
 			return config.defaultReward;
+		}
 		List<Reward> rl = config.rewards.get(e.getType());
 		// process checks in defined order
-		for(Reward r : rl)
-			if(r.condition != null && r.condition.matches(e))
+		for (Reward r : rl) {
+			if (r.condition != null && r.condition.matches(e)) {
 				return r;
+			}
+		}
 		// return any that don't have a condition
-		for(Reward r : rl)
-			if(r.condition == null)
+		for (Reward r : rl) {
+			if (r.condition == null) {
 				return r;
+			}
+		}
 		return null;
 	}
 }

@@ -191,7 +191,7 @@ public class Config {
 					}
 					if (et == null) {
 						plugin.getLogger().warning("Unknown EntityType for rewards: " + k);
-					} else if (!et.isAlive()) {
+					} else if (!et.isAlive() || et == EntityType.ARMOR_STAND) {
 						plugin.getLogger().warning("rewards." + k + " does not define a valid LivingEntity");
 					} else {
 						List<Reward> rl = rewards.get(et);
