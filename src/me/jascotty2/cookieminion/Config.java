@@ -575,6 +575,7 @@ public class Config {
 				case "author":
 				case "pages":
 				case "lore":
+				case "nbt":
 					break;
 				// not planning on supporting these right now
 				case "age":

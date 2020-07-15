@@ -28,6 +28,8 @@ import java.util.Random;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import me.jascotty2.libv3.bukkit.util.NBTEdit;
+import me.jascotty2.libv3_2.util.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -262,6 +264,11 @@ public class Reward {
 
 		public ItemStack getItemStack() {
 			ItemStack it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
+			// does this item have custom metadata?
+			if (extraData != null && extraData.containsKey("nbt")) {
+				it = NBTEdit.setFromJson(it, JsonParser.encodeJSON(extraData.get("nbt")));
+			}
+			System.out.println(extraData.keySet());
 			if (data != dataMax) {
 				it.setDurability((short) (data + RNG.nextInt(dataMax - data)));
 			} else if (data != 0) {
