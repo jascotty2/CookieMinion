@@ -12,7 +12,6 @@ import org.bukkit.inventory.ItemStack;
 public class NBTEdit {
 
 	public static ItemStack setFromJson(ItemStack item, String json) {
-		System.out.println(item + " setting to " + json);
 		if (!enabled) {
 			return item;
 		}

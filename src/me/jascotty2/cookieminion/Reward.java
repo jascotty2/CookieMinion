@@ -268,7 +268,6 @@ public class Reward {
 			if (extraData != null && extraData.containsKey("nbt")) {
 				it = NBTEdit.setFromJson(it, JsonParser.encodeJSON(extraData.get("nbt")));
 			}
-			System.out.println(extraData.keySet());
 			if (data != dataMax) {
 				it.setDurability((short) (data + RNG.nextInt(dataMax - data)));
 			} else if (data != 0) {
