@@ -76,7 +76,14 @@ public class Reward {
 			return Collections.EMPTY_LIST;
 		}
 		List<ItemStack> itms = new ArrayList();
-		for (Item it : loot) {
+		List<Item> lootTable;
+		if(maxLoot != 0) {
+			lootTable = loot;
+		} else {
+			lootTable = new ArrayList(loot);
+			Collections.shuffle(lootTable);
+		}
+		for (Item it : lootTable) {
 			final double chance = lootingLevel == 0 || it.chanceHigh < 0 ? it.chance
 				: (lootingLevel >= 3 ? it.chanceHigh : ((it.chanceHigh - it.chance) * (lootingLevel / 3.)) + it.chance);
 			if (RNG.nextDouble() * 100 < chance) {
