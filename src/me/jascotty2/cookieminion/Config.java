@@ -372,6 +372,7 @@ public class Config {
 			r.condition = new RewardCondition(et);
 			r.condition.name = sec.getString("name");
 			r.condition.uuid = sec.getString("uuid");
+			r.condition.world = sec.getString("world");
 			r.condition.permission = sec.getString("permission");
 			if (sec.isSet("baby")) {
 				r.condition.isBaby = sec.getBoolean("baby");

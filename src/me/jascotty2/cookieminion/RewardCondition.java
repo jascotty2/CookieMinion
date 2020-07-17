@@ -9,7 +9,7 @@ import org.bukkit.entity.Zombie;
 public class RewardCondition {
 
 	public final EntityType type;
-	public String name = null, uuid = null, permission = null;
+	public String name = null, uuid = null, permission = null, world = null;
 	public Boolean isBaby = null;
 
 	public RewardCondition(EntityType type) {
@@ -40,10 +40,19 @@ public class RewardCondition {
 		}
 		if (isBaby != null) {
 			if (e instanceof Ageable) {
-				return isBaby != ((Ageable) e).isAdult();
+				if (isBaby == ((Ageable) e).isAdult()) {
+					return false;
+				}
 			} else if (e instanceof Zombie) {
-				return isBaby == ((Zombie) e).isBaby();
+				if (isBaby != ((Zombie) e).isBaby()) {
+					return false;
+				}
 			} else if (isBaby) {
+				return false;
+			}
+		}
+		if (world != null) {
+			if(!world.equalsIgnoreCase(e.getWorld().getName())) {
 				return false;
 			}
 		}
@@ -52,7 +61,7 @@ public class RewardCondition {
 
 	@Override
 	public String toString() {
-		return "RewardCondition{" + "type=" + type + ", name=" + name + ", uuid=" + uuid + ", permission=" + permission + ", isBaby=" + isBaby + '}';
+		return "RewardCondition{" + "type=" + type + ", name=" + name + ", uuid=" + uuid + ", permission=" + permission + ", world=" + world + ", isBaby=" + isBaby + '}';
 	}
 
 }
