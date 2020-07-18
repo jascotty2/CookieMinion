@@ -324,6 +324,16 @@ public class Config {
 								if (!dataValid(mat, itm.extraData = JsonParser.parseJSON(t), itmStr)) {
 									r.incompleteLoadError = true;
 								}
+								if(itm.extraData != null && itm.extraData.containsKey("nbt")) {
+									String nbt = JsonParser.encodeJSON(itm.extraData.get("nbt"));
+									Pattern intList = Pattern.compile("\": ?(\\[null,\\d+(,\\d+)*\\])[,\\]\\}]");
+									Matcher intM = intList.matcher(nbt);
+									while(intM.find()) {
+										// found a match for a possible int array
+										nbt = nbt.replace(intM.group(1), "[I;" + intM.group(1).substring(6));
+									}
+									itm.extraData.put("nbt", nbt);
+								}
 							} catch (ParseException ex) {
 								plugin.getLogger().warning("Unable to parse custom data for " + sec.getCurrentPath() + ": " + itmStr);
 								plugin.getLogger().log(Level.SEVERE, "Parse Error:", ex);

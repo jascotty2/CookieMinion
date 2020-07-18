@@ -273,7 +273,7 @@ public class Reward {
 			ItemStack it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
 			// does this item have custom metadata?
 			if (extraData != null && extraData.containsKey("nbt")) {
-				it = NBTEdit.setFromJson(it, JsonParser.encodeJSON(extraData.get("nbt")));
+				it = NBTEdit.setFromJson(it, extraData.get("nbt").toString());
 			}
 			if (data != dataMax) {
 				it.setDurability((short) (data + RNG.nextInt(dataMax - data)));
