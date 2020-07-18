@@ -321,7 +321,7 @@ public class Config {
 						// nbt tagData
 						if ((t = m.group(3)) != null) {
 							try {
-								if (!dataValid(mat, itm.extraData = lowercaseKeys(JsonParser.parseJSON(t)), itmStr)) {
+								if (!dataValid(mat, itm.extraData = JsonParser.parseJSON(t), itmStr)) {
 									r.incompleteLoadError = true;
 								}
 							} catch (ParseException ex) {
