@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package me.jascotty2.libv3_2.util;
+package me.jascotty2.libv3_3.util;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -153,8 +153,9 @@ public class Numbers {
 	public static boolean equal(double d1, double d2, double epsilon) {
 		return Math.abs(d1 - d2) < epsilon;
 	}
-	
+
 	private static long fibonacci[] = null; // 93 numbers is the most before a signed long overflows
+
 	public static long getFibonacci(int sequenceIndex) {
 		if (sequenceIndex > 0 && sequenceIndex <= 93) {
 			if (fibonacci == null) {
@@ -170,18 +171,21 @@ public class Numbers {
 		}
 		return -1;
 	}
-	private static ArrayList<BigInteger> fibonacciLarge = new ArrayList<BigInteger>();
+
+	private final static ArrayList<BigInteger> fibonacciLarge = new ArrayList();
 	/**
 	 * if you're needing a number past sequence number 93
 	 */
 	public static BigInteger getFibonacciLarge(int sequenceIndex) {
-		if(sequenceIndex <= 0) return null;
-		if(sequenceIndex > fibonacciLarge.size()) {
-			if(fibonacciLarge.size() < 2) {
+		if (sequenceIndex <= 0) {
+			return null;
+		}
+		if (sequenceIndex > fibonacciLarge.size()) {
+			if (fibonacciLarge.size() < 2) {
 				fibonacciLarge.add(BigInteger.valueOf(0));
 				fibonacciLarge.add(BigInteger.valueOf(1));
 			}
-			for(int i = fibonacciLarge.size(); i < sequenceIndex; ++i) {
+			for (int i = fibonacciLarge.size(); i < sequenceIndex; ++i) {
 				BigInteger v = BigInteger.valueOf(0);
 				fibonacciLarge.add(v.add(fibonacciLarge.get(i - 1)).add(fibonacciLarge.get(i - 2)));
 			}
@@ -192,86 +196,86 @@ public class Numbers {
 	public static Boolean asBoolean(Object o) {
 		return o == null ? null
 				: (o instanceof Boolean ? ((Boolean) o)
-				: (o instanceof Number ? ((Number) o).intValue() != 0
-				: (o instanceof String ? ((String) o).equalsIgnoreCase("true") : null)));
+						: (o instanceof Number ? ((Number) o).intValue() != 0
+								: (o instanceof String ? ((String) o).equalsIgnoreCase("true") : null)));
 	}
 
 	public static Long asLong(Object o) {
 		return o == null ? null
 				: (o instanceof Number ? ((Number) o).longValue()
-				: (o instanceof String ? Long.valueOf((String) o) : null));
+						: (o instanceof String ? Long.valueOf((String) o) : null));
 	}
 
 	public static Integer asInteger(Object o) {
 		return o == null ? null
 				: (o instanceof Number ? ((Number) o).intValue()
-				: (o instanceof String ? Integer.valueOf((String) o) : null));
+						: (o instanceof String ? Integer.valueOf((String) o) : null));
 	}
 
 	public static Short asShort(Object o) {
 		return o == null ? null
 				: (o instanceof Number ? ((Number) o).shortValue()
-				: (o instanceof String ? Short.valueOf((String) o) : null));
+						: (o instanceof String ? Short.valueOf((String) o) : null));
 	}
 
 	public static Byte asByte(Object o) {
 		return o == null ? null
 				: (o instanceof Number ? ((Number) o).byteValue()
-				: (o instanceof String ? Byte.valueOf((String) o) : null));
+						: (o instanceof String ? Byte.valueOf((String) o) : null));
 	}
 
 	public static Double asDouble(Object o) {
 		return o == null ? null
 				: (o instanceof Number ? ((Number) o).doubleValue()
-				: (o instanceof String ? Double.valueOf((String) o) : null));
+						: (o instanceof String ? Double.valueOf((String) o) : null));
 	}
 
 	public static Float asFloat(Object o) {
 		return o == null ? null
 				: (o instanceof Number ? ((Number) o).floatValue()
-				: (o instanceof String ? Float.valueOf((String) o) : null));
+						: (o instanceof String ? Float.valueOf((String) o) : null));
 	}
 
 	public static Boolean asBoolean(Object o, Boolean err) {
 		return o == null ? err
 				: (o instanceof Boolean ? ((Boolean) o)
-				: (o instanceof Number ? ((Number) o).intValue() != 0
-				: (o instanceof String ? ((String) o).equalsIgnoreCase("true") : err)));
+						: (o instanceof Number ? ((Number) o).intValue() != 0
+								: (o instanceof String ? ((String) o).equalsIgnoreCase("true") : err)));
 	}
 
 	public static Long asLong(Object o, Long err) {
 		return o == null ? err
 				: (o instanceof Number ? ((Number) o).longValue()
-				: (o instanceof String ? Long.valueOf((String) o) : err));
+						: (o instanceof String ? Long.valueOf((String) o) : err));
 	}
 
 	public static Integer asInteger(Object o, Integer err) {
 		return o == null ? err
 				: (o instanceof Number ? ((Number) o).intValue()
-				: (o instanceof String ? Integer.valueOf((String) o) : err));
+						: (o instanceof String ? Integer.valueOf((String) o) : err));
 	}
 
 	public static Short asShort(Object o, Short err) {
 		return o == null ? err
 				: (o instanceof Number ? ((Number) o).shortValue()
-				: (o instanceof String ? Short.valueOf((String) o) : err));
+						: (o instanceof String ? Short.valueOf((String) o) : err));
 	}
 
 	public static Byte asByte(Object o, Byte err) {
 		return o == null ? err
 				: (o instanceof Number ? ((Number) o).byteValue()
-				: (o instanceof String ? Byte.valueOf((String) o) : err));
+						: (o instanceof String ? Byte.valueOf((String) o) : err));
 	}
 
 	public static Double asDouble(Object o, Double err) {
 		return o == null ? err
 				: (o instanceof Number ? ((Number) o).doubleValue()
-				: (o instanceof String ? Double.valueOf((String) o) : err));
+						: (o instanceof String ? Double.valueOf((String) o) : err));
 	}
 
 	public static Float asFloat(Object o, Float err) {
 		return o == null ? err
 				: (o instanceof Number ? ((Number) o).floatValue()
-				: (o instanceof String ? Float.valueOf((String) o) : err));
+						: (o instanceof String ? Float.valueOf((String) o) : err));
 	}
 }

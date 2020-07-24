@@ -18,18 +18,22 @@
  */
 package me.jascotty2.cookieminion;
 
+import java.io.IOException;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.Random;
 import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.jascotty2.libv3.bukkit.util.NBTEdit;
-import me.jascotty2.libv3_2.util.JsonParser;
+import me.jascotty2.libv3_3.util.JsonParser;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
@@ -84,7 +88,7 @@ public class Reward {
 			Collections.shuffle(lootTable, RNG);
 		}
 		for (Item it : lootTable) {
-			final double chance = lootingLevel == 0 || it.chanceHigh < 0 ? it.chance
+			final double chance = lootingLevel == 0 || it.chanceHigh <= 0 ? it.chance
 				: (lootingLevel >= 3 ? it.chanceHigh : ((it.chanceHigh - it.chance) * (lootingLevel / 3.)) + it.chance);
 			if (RNG.nextDouble() * 100 < chance) {
 				itms.add(it.getItemStack());
@@ -273,7 +277,16 @@ public class Reward {
 			ItemStack it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
 			// does this item have custom metadata?
 			if (extraData != null && extraData.containsKey("nbt")) {
-				it = NBTEdit.setFromJson(it, extraData.get("nbt").toString());
+				String nbt = extraData.get("nbt").toString();
+				if(nbt.contains("\\u")) {
+					nbt = JsonParser.convertUnicode(nbt);
+				}
+				ItemStack it2 = NBTEdit.setFromJson(it, nbt);
+				if (it2 != null) {
+					it = it2;
+				} else {
+					System.out.println("Error handling item: " + extraData.get("nbt").toString());
+				}
 			}
 			if (data != dataMax) {
 				it.setDurability((short) (data + RNG.nextInt(dataMax - data)));

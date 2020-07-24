@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License along with
  * this program. If not, see <http://www.gnu.org/licenses/>.
  */
-package me.jascotty2.libv3_2.util;
+package me.jascotty2.libv3_3.util;
 
 import java.text.ParseException;
 import java.util.ArrayList;
@@ -741,22 +741,22 @@ public class JsonParser {
 	public static String encodeUnicode(String str) {
 		if (str.matches(".*[^\\x00-\\x7F].*")) {
 			StringBuilder d = new StringBuilder();
-			final int last = str.length();
+			final int last = str.codePointCount(0, str.length());
 			for (int i = 0; i < last; ++i) {
-				final char c = str.charAt(i);
-				if ((int) c > 127) {
-
-					d.append("\\u");
-
-					final String val = Numbers.changeBase(String.valueOf((int) c), 10, 16);
-
-					for (int n = 4 - val.length(); n >= 0; --n) {
-						d.append('0');
+				final int c = str.codePointAt(i);// .charAt(i);
+				if (c > 127) {
+					char[] codes = Character.toChars(c);
+					// 1F50A -> D83D + DD0A
+					for(char p : codes) {
+						d.append("\\u");
+						final String val = Numbers.changeBase(String.valueOf((int) p), 10, 16);
+						for (int n = 4 - val.length(); n > 0; --n) {
+							d.append('0');
+						}
+						d.append(val);
 					}
-					d.append(val);
-
 				} else {
-					d.append(c);
+					d.append((char) c);
 				}
 			}
 			return d.toString();
