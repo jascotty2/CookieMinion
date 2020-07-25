@@ -277,11 +277,7 @@ public class Reward {
 			ItemStack it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
 			// does this item have custom metadata?
 			if (extraData != null && extraData.containsKey("nbt")) {
-				String nbt = extraData.get("nbt").toString();
-				if(nbt.contains("\\u")) {
-					nbt = JsonParser.convertUnicode(nbt);
-				}
-				ItemStack it2 = NBTEdit.setFromJson(it, nbt);
+				ItemStack it2 = NBTEdit.setFromJson(it, extraData.get("nbt").toString());
 				if (it2 != null) {
 					it = it2;
 				} else {

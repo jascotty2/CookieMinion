@@ -325,7 +325,7 @@ public class Config {
 									r.incompleteLoadError = true;
 								}
 								if(itm.extraData != null && itm.extraData.containsKey("nbt")) {
-									String nbt = JsonParser.encodeJSON(itm.extraData.get("nbt"));
+									String nbt = JsonParser.convertUnicode(JsonParser.encodeJSON(itm.extraData.get("nbt")));
 									Pattern intList = Pattern.compile("\": ?(\\[null,\\d+(,\\d+)*\\])[,\\]\\}]");
 									Matcher intM = intList.matcher(nbt);
 									while(intM.find()) {
