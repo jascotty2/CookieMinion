@@ -19,6 +19,7 @@ package me.jascotty2.libv3.bukkit.util;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -144,4 +145,12 @@ public class QuietCommander implements CommandSender {
 	public Spigot spigot() {
 		return spigot;
 	}
+
+    @Override
+    public void sendMessage(UUID uuid, String string) {
+    }
+
+    @Override
+    public void sendMessage(UUID uuid, String[] strings) {
+    }
 }
