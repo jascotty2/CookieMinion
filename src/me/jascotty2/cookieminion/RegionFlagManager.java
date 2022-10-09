@@ -42,21 +42,27 @@ public class RegionFlagManager {
 	public void hookWG() {
 		try {
 			WorldGuard.getInstance().getFlagRegistry().register(FLAG);
+			hookInstalled = true;
 		} catch (Exception ex) {
-			Bukkit.getServer().getLogger().log(Level.WARNING, "Could not add flag {0} to WorldGuard", FLAG.getName());
-			FLAG = (StateFlag) WorldGuard.getInstance().getFlagRegistry().get(FLAG.getName());
-			if(FLAG == null)
-				Bukkit.getServer().getLogger().log(Level.WARNING, "Could not hook WorldGuard");
+			Object o = WorldGuard.getInstance().getFlagRegistry().get(FLAG.getName());
+			if (o != null && StateFlag.class.isAssignableFrom(o.getClass())) {
+				FLAG = (StateFlag) o;
+				hookInstalled = true;
+			}
+			if (!hookInstalled) {
+				Bukkit.getServer().getLogger().log(Level.WARNING, "Could not add flag {0} to WorldGuard", FLAG.getName());
+			}
 		}
 	}
 
 	public boolean rewardsAllowed(Location l) {
-		if(FLAG == null) 
+		if (!hookInstalled || FLAG == null) {
 			return true;
+		}
 		RegionContainer container = WorldGuard.getInstance().getPlatform().getRegionContainer();
 		RegionQuery query = container.createQuery();
 		com.sk89q.worldedit.util.Location loc = BukkitAdapter.adapt(l);
 		return query.testState(loc, (RegionAssociable) null, FLAG);
-		
+
 	}
 }

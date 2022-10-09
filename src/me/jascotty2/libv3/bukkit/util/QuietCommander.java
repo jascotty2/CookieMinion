@@ -20,6 +20,10 @@ package me.jascotty2.libv3.bukkit.util;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.UUID;
+import net.kyori.adventure.audience.MessageType;
+import net.kyori.adventure.identity.Identity;
+import net.kyori.adventure.text.Component;
+import net.md_5.bungee.api.chat.BaseComponent;
 import org.bukkit.Server;
 import org.bukkit.command.CommandSender;
 import org.bukkit.permissions.Permission;
@@ -41,6 +45,11 @@ public class QuietCommander implements CommandSender {
 	@Override
 	public String getName() {
 		return plugin.getName();
+	}
+	
+	@Override
+	public Component name() {
+		return Component.text(plugin.getName());
 	}
 
 	@Override
@@ -153,4 +162,24 @@ public class QuietCommander implements CommandSender {
     @Override
     public void sendMessage(UUID uuid, String[] strings) {
     }
+
+	@Override
+	public void sendMessage(Identity identity, Component message, MessageType type) {
+	}
+
+	@Override
+	public void sendRichMessage(String message) {
+	}
+
+	@Override
+	public void sendPlainMessage(String message) {
+	}
+
+	@Override
+	public void sendMessage(BaseComponent component) {
+	}
+
+	@Override
+	public void sendMessage(BaseComponent... components) {
+	}
 }

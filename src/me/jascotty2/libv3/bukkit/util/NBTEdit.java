@@ -3,9 +3,12 @@ package me.jascotty2.libv3.bukkit.util;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.stream.Collectors;
+import me.jascotty2.libv3_4.util.ReflectionUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.inventory.ItemStack;
 
@@ -147,34 +150,108 @@ public class NBTEdit {
 	private final static String serverPackagePath = Bukkit.getServer().getClass().getPackage().getName();
 	private final static String serverPackageVersion = serverPackagePath.substring(serverPackagePath.lastIndexOf('.') + 1);
 	private static boolean enabled = true;
+	private static boolean post116 = true;
+	private static final Map<String, String> post116mappings = new HashMap();// {{
+	//	put("ItemStack", "net.minecraft.world.item.ItemStack");
+	//}};
 
 	static {
+		// test post-1.16 classes
+		try {
+			Class.forName("net.minecraft.world.item.ItemStack");
+			post116 = true;
+		} catch (ClassNotFoundException e) {
+			post116 = false;
+		}
+		if (post116) {
+			// Load post-1.16 mappings
+			try {
+				Class baseClass = Class.forName("net.minecraft.MinecraftVersion");
+				Set<String> allClasses = ReflectionUtils.getClassNamesFromPackage(baseClass, ReflectionUtils.ITERATION.PACKAGE).stream()
+						.map(s -> "net.minecraft." + s)
+						.collect(Collectors.toSet());
+				List<String> allClassesBases = allClasses.stream()
+						.map(s -> s.substring(s.lastIndexOf('.') + 1))
+						.collect(Collectors.toList());
+				Map<String, Integer> allClassesBaseCounts = new HashMap<>();
+				allClassesBases.stream()
+						.forEach(s -> allClassesBaseCounts.put(s, allClassesBaseCounts.getOrDefault(s, 0) + 1));
+				post116mappings.putAll(allClasses.stream()
+						.filter(s -> allClassesBaseCounts.get(s.substring(s.lastIndexOf('.') + 1)) == 1)
+						.collect(Collectors.toMap(s -> s.substring(s.lastIndexOf('.') + 1), s -> s))
+				);
+			} catch (Exception e) {
+				Bukkit.getLogger().log(Level.WARNING, "Error loading NMS handler", e);
+			}
+		}
 		try {
 			methodCache.put("obc.CraftItemStack.asNMSCopy", getOBCClass("inventory.CraftItemStack").getMethod("asNMSCopy", ItemStack.class));
 			methodCache.put("obc.CraftItemStack.asBukkitCopy", getOBCClass("inventory.CraftItemStack").getMethod("asBukkitCopy", getNMSClass("ItemStack")));
-			methodCache.put("nms.ItemStack.hasTag", getNMSClass("ItemStack").getMethod("hasTag"));
-			methodCache.put("nms.ItemStack.getTag", getNMSClass("ItemStack").getMethod("getTag"));
-			methodCache.put("nms.ItemStack.setTag", getNMSClass("ItemStack").getMethod("setTag", getNMSClass("NBTTagCompound")));
-			methodCache.put("nms.MojangsonParser.parse", getNMSClass("MojangsonParser").getMethod("parse", String.class));
-			//methodCache.put("nms.NBTTagCompound", getNMSClass("NBTTagCompound")
+			try {
+				methodCache.put("nms.ItemStack.hasTag", getNMSClass("ItemStack").getMethod("hasTag"));
+			} catch (NoSuchMethodException e) {
+				methodCache.put("nms.ItemStack.hasTag", getNMSClass("ItemStack").getMethod("t")); // 1.19.2 :|
+			}
+			
+			try {
+				methodCache.put("nms.ItemStack.getTag", getNMSClass("ItemStack").getMethod("getTag"));
+			} catch (NoSuchMethodException e) {
+				methodCache.put("nms.ItemStack.getTag", getNMSClass("ItemStack").getMethod("u")); // 1.19.2 :|
+			}
+			
+			try {
+				methodCache.put("nms.ItemStack.setTag", getNMSClass("ItemStack").getMethod("setTag", getNMSClass("NBTTagCompound")));
+			} catch (NoSuchMethodException e) {
+				methodCache.put("nms.ItemStack.setTag", getNMSClass("ItemStack").getMethod("c", getNMSClass("NBTTagCompound"))); // 1.19.2 :|
+			}
+			
+			
+			try {
+				methodCache.put("nms.MojangsonParser.parse", getNMSClass("MojangsonParser").getMethod("parse", String.class));
+			} catch (NoSuchMethodException e) {
+				methodCache.put("nms.MojangsonParser.parse", getNMSClass("MojangsonParser").getMethod("a", String.class)); // 1.19.2 :|
+			}
+			
 		} catch (Exception e) {
 			Bukkit.getLogger().log(Level.WARNING, "Error loading NMS handler", e);
 			enabled = false;
 		}
+	}
+	
+	public static boolean available() {
+		return enabled;
 	}
 
 	private static Class getNMSClass(String name) {
 		if (classCache.containsKey("nms." + name)) {
 			return classCache.get("nms." + name);
 		}
-		try {
-			Class c = Class.forName("net.minecraft.server." + serverPackageVersion + "." + name);
-			classCache.put("nms." + name, c);
-			return c;
-		} catch (ClassNotFoundException e) {
-			Bukkit.getLogger().log(Level.WARNING, "NMS Error", e);
-			classCache.put("nms." + name, null);
-			return null;
+		if (post116) {
+			String fullName = post116mappings.get(name);
+			if (fullName != null) {
+				try {
+					Class c = Class.forName(fullName);
+					classCache.put("nms." + name, c);
+					return c;
+				} catch (ClassNotFoundException e) {
+					Bukkit.getLogger().log(Level.WARNING, "NMS Error", e);
+					classCache.put("nms." + name, null);
+					return null;
+				}
+			} else {
+				classCache.put("nms." + name, null);
+				return null;
+			}
+		} else {
+			try {
+				Class c = Class.forName("net.minecraft.server." + serverPackageVersion + "." + name);
+				classCache.put("nms." + name, c);
+				return c;
+			} catch (ClassNotFoundException e) {
+				Bukkit.getLogger().log(Level.WARNING, "NMS Error", e);
+				classCache.put("nms." + name, null);
+				return null;
+			}
 		}
 	}
 
