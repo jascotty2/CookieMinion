@@ -387,6 +387,7 @@ public class EntityListener implements Listener {
 		}
 	}
 	
+	@EventHandler(priority = EventPriority.LOWEST)
 	public void onInventoryPickupItemEvent(InventoryPickupItemEvent event) {
 		final Item eit = event.getItem();
 		if (eit.hasMetadata("CookieMonster_MoneyDrop")) {
@@ -395,8 +396,12 @@ public class EntityListener implements Listener {
 	}
 
 	void onMoneyPickup(Player p, double amount) {
-		plugin.econ.addMoney(p, amount);
-		p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, .8F, 20);
+		switch (p.getGameMode()) {
+			case ADVENTURE:
+			case SURVIVAL:
+				plugin.econ.addMoney(p, amount);
+				p.playSound(p.getLocation(), Sound.ENTITY_EXPERIENCE_ORB_PICKUP, .8F, 20);
+		}
 	}
 
 	Runnable absorptionRunner = new Runnable() {
