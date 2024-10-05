@@ -21,7 +21,6 @@ package me.jascotty2.cookieminion;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import java.util.List;
 import java.util.logging.Level;
-import me.jascotty2.libv3.bukkit.util.NBTEdit;
 import me.jascotty2.libv3.bukkit.util.QuietCommander;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -48,9 +47,6 @@ public class CookieMinion extends JavaPlugin {
 		if (plugin != null && (plugin instanceof WorldGuardPlugin)) {
 			regions = new RegionFlagManager((WorldGuardPlugin) plugin);
 			regions.hookWG();
-		}
-		if (!NBTEdit.available()) {
-			getLogger().warning("Error loading NBT mappings - possible item reward issues");
 		}
 	}
 

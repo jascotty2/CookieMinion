@@ -18,13 +18,7 @@
  */
 package me.jascotty2.cookieminion;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -33,6 +27,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Entity;
@@ -84,7 +80,7 @@ public class Reward {
 		}
 		for (Item it : lootTable) {
 			final double chance = lootingLevel == 0 || it.chanceHigh <= 0 ? it.chance
-				: (lootingLevel >= 3 ? it.chanceHigh : ((it.chanceHigh - it.chance) * (lootingLevel / 3.)) + it.chance);
+					: (lootingLevel >= 3 ? it.chanceHigh : ((it.chanceHigh - it.chance) * (lootingLevel / 3.)) + it.chance);
 			if (RNG.nextDouble() * 100 < chance) {
 				itms.add(it.getItemStack());
 				if (maxLoot != 0 && itms.size() >= maxLoot) {
@@ -325,8 +321,8 @@ public class Reward {
 						case "potion":
 							if (itm instanceof PotionMeta) {
 								String pot = extraData.get(k).toString().toUpperCase();
-								for(PotionType t : PotionType.values()) {
-									if(t.name().equals(pot)) {// || (t.getEffectType() != null && t.getEffectType().getName().equalsIgnoreCase(pot))) {
+								for (PotionType t : PotionType.values()) {
+									if (t.name().equals(pot)) {// || (t.getEffectType() != null && t.getEffectType().getName().equalsIgnoreCase(pot))) {
 										PotionMeta pm = (PotionMeta) itm;
 										pm.setBasePotionData(new PotionData(t));
 										break;
@@ -345,16 +341,16 @@ public class Reward {
 										Object id = m.get("id");
 										if (id instanceof String) {
 											type = PotionEffectType.getByName((String) id);
-										} else if(id instanceof Integer) {
+										} else if (id instanceof Integer) {
 											type = PotionEffectType.getById((Integer) id);
 										}
-										if(type != null) {
-											pm.addCustomEffect(new PotionEffect(type, 
-												m.get("duration") instanceof Integer ? (Integer) m.get("duration") : 1200,
-												m.get("amplifier") instanceof Integer ? (Integer) m.get("amplifier") : 0,
-												m.get("ambient") instanceof Integer ? ((Integer) m.get("ambient")) != 0 : false,
-												m.get("showparticles") instanceof Integer ? ((Integer) m.get("showparticles")) != 0 : true,
-												m.get("showicon") instanceof Integer ? ((Integer) m.get("showicon")) != 0 : true
+										if (type != null) {
+											pm.addCustomEffect(new PotionEffect(type,
+													m.get("duration") instanceof Integer ? (Integer) m.get("duration") : 1200,
+													m.get("amplifier") instanceof Integer ? (Integer) m.get("amplifier") : 0,
+													m.get("ambient") instanceof Integer ? ((Integer) m.get("ambient")) != 0 : false,
+													m.get("showparticles") instanceof Integer ? ((Integer) m.get("showparticles")) != 0 : true,
+													m.get("showicon") instanceof Integer ? ((Integer) m.get("showicon")) != 0 : true
 											), true);
 										}
 									}
@@ -372,9 +368,9 @@ public class Reward {
 						case "hideflags":
 							if ((o = extraData.get(k)) instanceof Integer) {
 								int flag = (Integer) o;
-								if (flag >= 32 && (flag = flag - 32) >= 0) {
-									itm.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-								}
+//								if (flag >= 32 && (flag = flag - 32) >= 0) {
+//									itm.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
+//								}
 								if (flag >= 16 && (flag = flag - 16) >= 0) {
 									itm.addItemFlags(ItemFlag.HIDE_PLACED_ON);
 								}
@@ -465,5 +461,4 @@ public class Reward {
 			return "Item{" + "itemMaterial=" + itemMaterial + ", chance=" + chance + ", chanceHigh=" + chanceHigh + ", amount=" + amount + ", data=" + data + ", dataMax=" + dataMax + ", extraData=" + extraData + '}';
 		}
 	}
-
 }

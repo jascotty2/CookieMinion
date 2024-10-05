@@ -280,16 +280,16 @@ public class Config {
 
 		if ((l = sec.getStringList("loot")) != null && !l.isEmpty()) {
 			r.loot = new LinkedList<Reward.Item>();
-			// full possible: 
+			// full possible:
 			// ITEM:[0-9]{data..{more data..}}@5%50
 			// or ITEM:5{data..{more data..}}@5%50
 			// every field after item is optional
 			Pattern itemPattern = Pattern.compile(
 					"([a-zA-Z_0-9]+)"
-					+ "(:[0-9]+|:\\[[0-9]+\\-[0-9]+\\])?"
-					+ "(\\{.*\\})?"
-					+ "(@[0-9]+)?"
-					+ "(%([0-9]*\\.)?[0-9]+(\\-([0-9]*\\.)?[0-9]+)?)?");
+							+ "(:[0-9]+|:\\[[0-9]+\\-[0-9]+\\])?"
+							+ "(\\{.*\\})?"
+							+ "(@[0-9]+)?"
+							+ "(%([0-9]*\\.)?[0-9]+(\\-([0-9]*\\.)?[0-9]+)?)?");
 			for (String itmStr : l) {
 				Matcher m = itemPattern.matcher(itmStr);
 				if (m.matches()) {
@@ -463,7 +463,7 @@ public class Config {
 	boolean dataValid(Material mat, Map dat, String def) {
 
 		// root values that are valid for all items:
-		// ench, Enchantments, display, AttributeModifiers, Unbreakable, 
+		// ench, Enchantments, display, AttributeModifiers, Unbreakable,
 		// HideFlags, CanDestroy, PickupDelay, Age
 		// special values:
 		// SkullOwner (Skull), generation (Book)

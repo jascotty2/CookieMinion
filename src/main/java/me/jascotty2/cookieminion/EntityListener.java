@@ -94,15 +94,15 @@ public class EntityListener implements Listener {
 			this.source = source;
 			this.damage = damage;
 			this.attackTime = System.currentTimeMillis();
-			lootLevel = (short) Math.min(3, hand == null || !hand.containsEnchantment(Enchantment.LOOT_BONUS_MOBS) ? 0 : 
-					hand.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS));
+			lootLevel = (short) Math.min(3, hand == null || !hand.containsEnchantment(Enchantment.LOOTING) ? 0 :
+					hand.getEnchantmentLevel(Enchantment.LOOTING));
 		}
 
 		void update(double damage, ItemStack hand) {
 			this.damage += damage;
 			this.attackTime = System.currentTimeMillis();
-			lootLevel = (short) Math.min(3, hand == null || !hand.containsEnchantment(Enchantment.LOOT_BONUS_MOBS) ? 0 : 
-					hand.getEnchantmentLevel(Enchantment.LOOT_BONUS_MOBS));
+			lootLevel = (short) Math.min(3, hand == null || !hand.containsEnchantment(Enchantment.LOOTING) ? 0 :
+					hand.getEnchantmentLevel(Enchantment.LOOTING));
 		}
 		
 	}

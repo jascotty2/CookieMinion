@@ -1,0 +1,18 @@
+name: CookieMinion
+description: A ultra-lightweight version of CookieMonster
+main: me.jascotty2.cookieminion.CookieMinion
+version: 1.14.0
+api-version: 1.21
+author: jascotty2
+loadbefore: [WorldGuard]
+softdepend: [Vault, CookieMonster]
+website: "https://dev.bukkit.org/projects/cookieminion"
+commands:
+  cookieminion:
+    description: Admin Commands
+    usage: /cookieminion reload
+    aliases: [cm]
+    permission: cookiemonster.admin
+permissions:
+  cookiemonster.admin:
+    default: op
