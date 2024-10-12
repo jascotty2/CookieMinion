@@ -43,6 +43,9 @@ import org.bukkit.potion.PotionData;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import ru.spliterash.musicbox.shadow.xseries.XMaterial;
+import ru.spliterash.musicbox.song.MusicBoxSong;
+import ru.spliterash.musicbox.song.MusicBoxSongManager;
 
 public class Reward {
 
@@ -254,7 +257,8 @@ public class Reward {
 		int amount = 1;
 		short data = 0;
 		short dataMax = 0;
-		Map extraData = null;
+		Map<String, Object> extraData = null;
+		String song = null;
 
 		public Item(Material itemMaterial) {
 			if (itemMaterial == Material.SKELETON_WALL_SKULL) {
@@ -263,10 +267,21 @@ public class Reward {
 				this.itemMaterial = itemMaterial;
 			}
 		}
-
 		public ItemStack getItemStack() {
-			ItemStack it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
-			// does this item have custom metadata?
+			ItemStack it;
+			// Check if the item is a music disc with a song
+			if (song != null && itemMaterial.isRecord()) { // Use isRecord to check if it's a music disc
+				MusicBoxSong musicBoxSong = MusicBoxSongManager.findByName(song.replace('_', ' ')).orElse(null);
+				if (musicBoxSong != null) {
+					it = musicBoxSong.getSongStack(XMaterial.matchXMaterial(itemMaterial));
+				} else {
+					it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
+				}
+			} else {
+				it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
+			}
+
+			// Does this item have custom metadata?
 			if (extraData != null && extraData.containsKey("nbt")) {
 				ItemStack it2 = NBTEdit.setFromJson(it, extraData.get("nbt").toString());
 				if (it2 != null) {
@@ -280,7 +295,7 @@ public class Reward {
 			} else if (data != 0) {
 				it.setDurability(data);
 			}
-			// does this item have additional metadata?
+			// Does this item have additional metadata?
 			if (extraData != null) {
 				ItemMeta itm = it.getItemMeta();
 				Object o;
@@ -288,7 +303,7 @@ public class Reward {
 					switch (k.toString().toLowerCase()) {
 						case "ench":
 						case "enchantments":
-							// add enchatments to the item
+							// add enchantments to the item
 							if ((o = extraData.get(k)) instanceof List) {
 								for (Object enc : (List) o) {
 									if (enc instanceof Map) {
@@ -322,7 +337,7 @@ public class Reward {
 							if (itm instanceof PotionMeta) {
 								String pot = extraData.get(k).toString().toUpperCase();
 								for (PotionType t : PotionType.values()) {
-									if (t.name().equals(pot)) {// || (t.getEffectType() != null && t.getEffectType().getName().equalsIgnoreCase(pot))) {
+									if (t.name().equals(pot)) {
 										PotionMeta pm = (PotionMeta) itm;
 										pm.setBasePotionData(new PotionData(t));
 										break;
@@ -368,9 +383,6 @@ public class Reward {
 						case "hideflags":
 							if ((o = extraData.get(k)) instanceof Integer) {
 								int flag = (Integer) o;
-//								if (flag >= 32 && (flag = flag - 32) >= 0) {
-//									itm.addItemFlags(ItemFlag.HIDE_POTION_EFFECTS);
-//								}
 								if (flag >= 16 && (flag = flag - 16) >= 0) {
 									itm.addItemFlags(ItemFlag.HIDE_PLACED_ON);
 								}
@@ -441,7 +453,7 @@ public class Reward {
 							break;
 						case "lore":
 							if ((o = extraData.get(k)) instanceof List) {
-								ArrayList<String> lore = new ArrayList<String>(((List) o).size());
+								ArrayList<String> lore = new ArrayList<>(((List) o).size());
 								for (Object page : (List) o) {
 									lore.add(ChatColor.translateAlternateColorCodes('&', page.toString()));
 								}
@@ -449,6 +461,10 @@ public class Reward {
 							} else {
 								itm.setLore(Arrays.asList(ChatColor.translateAlternateColorCodes('&', o.toString())));
 							}
+							break;
+						case "song":
+							song = extraData.get(k).toString();
+							break;
 					}
 				}
 				it.setItemMeta(itm);

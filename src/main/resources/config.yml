@@ -79,6 +79,7 @@ rewards:
             - IRON_SWORD{Enchantments:[{id:21,lvl:1}]}%30
             - IRON_SWORD:[50-200]{Enchantments:[{id:"Mending"}]}%10
             - GOLD_NUGGET
+           #- MUSIC_DISC{song:"CaptainSparklez_-_Revenge"}%100 #Example of how to add a music disc from MusicBox. You can get the file name with '/musicbox give <user>' and the disc's name should be in the tab complete.
         # The loot table is checked sequentially
         # use this if you want it to stop once it's provided a certain number of drops
         maxLoot: 1

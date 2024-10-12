@@ -38,6 +38,10 @@
 			<id>sk89q-repo</id>
 			<url>https://maven.enginehub.org/repo/</url>
 		</repository>
+        <repository>
+            <id>codemc-repo</id>
+            <url>https://repo.codemc.org/repository/maven-public</url>
+        </repository>
     </repositories>
     <dependencies>
         <dependency>
@@ -61,8 +65,15 @@
         <dependency>
             <groupId>net.milkbowl.vault</groupId>
             <artifactId>VaultUnlockedAPI</artifactId>
-            <version>2.2</version>
+            <version>2.4</version>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>ru.spliterash.musicbox</groupId>
+            <artifactId>MusicBox</artifactId>
+            <version>MusicBox-2.2.2-all</version>
+            <systemPath>${basedir}/libs/MusicBox-2.2.2-all.jar</systemPath>
+            <scope>system</scope>
         </dependency>
     </dependencies>
 </project>

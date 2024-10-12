@@ -19,12 +19,7 @@
 package me.jascotty2.cookieminion;
 
 import java.text.ParseException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -35,8 +30,11 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
+import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
+import ru.spliterash.musicbox.song.MusicBoxSong;
+import ru.spliterash.musicbox.song.MusicBoxSongManager;
 
 public class Config {
 
@@ -279,11 +277,7 @@ public class Config {
 		}
 
 		if ((l = sec.getStringList("loot")) != null && !l.isEmpty()) {
-			r.loot = new LinkedList<Reward.Item>();
-			// full possible:
-			// ITEM:[0-9]{data..{more data..}}@5%50
-			// or ITEM:5{data..{more data..}}@5%50
-			// every field after item is optional
+			r.loot = new LinkedList<>();
 			Pattern itemPattern = Pattern.compile(
 					"([a-zA-Z_0-9]+)"
 							+ "(:[0-9]+|:\\[[0-9]+\\-[0-9]+\\])?"
@@ -293,12 +287,62 @@ public class Config {
 			for (String itmStr : l) {
 				Matcher m = itemPattern.matcher(itmStr);
 				if (m.matches()) {
-					Material mat = Material.matchMaterial(m.group(1));
-					if (mat == null) {
-						plugin.getLogger().warning("Unknown item in definition for " + sec.getCurrentPath() + ": " + itmStr);
-						r.incompleteLoadError = true;
+					String itemName = m.group(1);
+					Material mat = Material.matchMaterial(itemName);
+
+					if (mat == null && itemName.equalsIgnoreCase("MUSIC_DISC")) {
+						// Special handling for MusicBox songs
+						String songName = null;
+						if (m.group(3) != null) {
+							Pattern songPattern = Pattern.compile("song:\"([^\"]+)\"");
+							Matcher songMatcher = songPattern.matcher(m.group(3));
+							if (songMatcher.find()) {
+								songName = songMatcher.group(1);
+							}
+						}
+
+						if (songName != null) {
+							MusicBoxSong song = MusicBoxSongManager.findByName(songName.replace('_', ' ')).orElse(null);
+							if (song != null) {
+								List<Material> musicDiscs = Arrays.asList(
+										Material.MUSIC_DISC_13, Material.MUSIC_DISC_CAT, Material.MUSIC_DISC_BLOCKS,
+										Material.MUSIC_DISC_CHIRP, Material.MUSIC_DISC_FAR, Material.MUSIC_DISC_MALL,
+										Material.MUSIC_DISC_MELLOHI, Material.MUSIC_DISC_STAL, Material.MUSIC_DISC_STRAD,
+										Material.MUSIC_DISC_WARD, Material.MUSIC_DISC_11, Material.MUSIC_DISC_WAIT,
+										Material.MUSIC_DISC_PIGSTEP, Material.MUSIC_DISC_OTHERSIDE, Material.MUSIC_DISC_RELIC,
+										Material.MUSIC_DISC_5
+								);
+								Random random = new Random();
+								Material randomDisc = musicDiscs.get(random.nextInt(musicDiscs.size()));
+
+								Reward.Item itm = new Reward.Item(randomDisc); // Use a random MUSIC_DISC material
+								itm.song = song.getName();
+
+								// Handle other properties (amount, chance, nbt)
+								String t;
+								if ((t = m.group(4)) != null) {
+									itm.amount = Integer.parseInt(t.substring(1));
+								}
+								if ((t = m.group(5)) != null) {
+									if (!t.contains("-")) {
+										itm.chance = Double.parseDouble(t.substring(1));
+									} else {
+										int i = t.indexOf('-');
+										itm.chance = Double.parseDouble(t.substring(1, i));
+										itm.chanceHigh = Double.parseDouble(t.substring(i + 1));
+									}
+								}
+								r.loot.add(itm);
+							} else {
+								plugin.getLogger().warning("Unknown song in definition for " + sec.getCurrentPath() + ": " + itmStr);
+								r.incompleteLoadError = true;
+							}
+						} else {
+							plugin.getLogger().warning("Song not specified for MUSIC_DISC in definition for " + sec.getCurrentPath() + ": " + itmStr);
+							r.incompleteLoadError = true;
+						}
 					} else {
-						// have the item, now load the rest of the values
+						// Regular item handling
 						Reward.Item itm = new Reward.Item(mat);
 						String t; // temp
 
@@ -375,7 +419,7 @@ public class Config {
 		r.replaceLoot = sec.getBoolean("replaceLoot", false);
 
 		if ((l = sec.getStringList("commands")) != null && !l.isEmpty()) {
-			r.commands = new ArrayList<String>(l);
+			r.commands = new ArrayList<>(l);
 		}
 
 		if ((sec = sec.getConfigurationSection("condition")) != null) {
@@ -393,7 +437,7 @@ public class Config {
 
 	LinkedHashMap<String, Double> loadMultipliers(Object o, String path) {
 		if (o instanceof List) {
-			LinkedHashMap<String, Double> m = new LinkedHashMap();
+			LinkedHashMap<String, Double> m = new LinkedHashMap<>();
 			for (Object perm : (List) o) {
 				if (perm instanceof Map) {
 					for (Map.Entry<String, Object> e : ((Map<String, Object>) perm).entrySet()) {
@@ -411,7 +455,7 @@ public class Config {
 			}
 			return m;
 		} else if (o instanceof Map) {
-			LinkedHashMap<String, Double> m = new LinkedHashMap();
+			LinkedHashMap<String, Double> m = new LinkedHashMap<>();
 			// just in case someone missed the list format
 			for (Map.Entry<String, Object> e : ((Map<String, Object>) o).entrySet()) {
 				try {
@@ -587,6 +631,7 @@ public class Config {
 				case "pages":
 				case "lore":
 				case "nbt":
+				case "song":
 					break;
 				// not planning on supporting these right now
 				case "age":
