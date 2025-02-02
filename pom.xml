@@ -71,8 +71,8 @@
         <dependency>
             <groupId>ru.spliterash.musicbox</groupId>
             <artifactId>MusicBox</artifactId>
-            <version>MusicBox-2.2.2-all</version>
-            <systemPath>${basedir}/libs/MusicBox-2.2.2-all.jar</systemPath>
+            <version>MusicBox-3.1</version>
+            <systemPath>${basedir}/libs/MusicBox-3.1.jar</systemPath>
             <scope>system</scope>
         </dependency>
     </dependencies>

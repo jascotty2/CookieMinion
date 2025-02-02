@@ -5,8 +5,7 @@ version: 1.14.0
 api-version: 1.21
 author: jascotty2
 loadbefore: [WorldGuard]
-softdepend: [Vault, CookieMonster]
-depend: [MusicBox]
+softdepend: [Vault, CookieMonster, MusicBox]
 website: "https://dev.bukkit.org/projects/cookieminion"
 commands:
   cookieminion:

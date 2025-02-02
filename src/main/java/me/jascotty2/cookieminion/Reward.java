@@ -270,10 +270,14 @@ public class Reward {
 		public ItemStack getItemStack() {
 			ItemStack it;
 			// Check if the item is a music disc with a song
-			if (song != null && itemMaterial.isRecord()) { // Use isRecord to check if it's a music disc
-				MusicBoxSong musicBoxSong = MusicBoxSongManager.findByName(song.replace('_', ' ')).orElse(null);
-				if (musicBoxSong != null) {
-					it = musicBoxSong.getSongStack(XMaterial.matchXMaterial(itemMaterial));
+			if (song != null && itemMaterial.isRecord()) {
+				if (Config.isMusicBoxLoaded()) {
+					MusicBoxSong musicBoxSong = MusicBoxSongManager.findByName(song.replace('_', ' ')).orElse(null);
+					if (musicBoxSong != null) {
+						it = musicBoxSong.getSongStack(XMaterial.matchXMaterial(itemMaterial));
+					} else {
+						it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
+					}
 				} else {
 					it = new ItemStack(itemMaterial, amount > 1 ? 1 + RNG.nextInt(amount - 1) : amount);
 				}

@@ -24,6 +24,7 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import me.jascotty2.libv3_3.util.JsonParser;
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
@@ -301,7 +302,7 @@ public class Config {
 							}
 						}
 
-						if (songName != null) {
+						if (songName != null && isMusicBoxLoaded()) {
 							MusicBoxSong song = MusicBoxSongManager.findByName(songName.replace('_', ' ')).orElse(null);
 							if (song != null) {
 								List<Material> musicDiscs = Arrays.asList(
@@ -338,7 +339,7 @@ public class Config {
 								r.incompleteLoadError = true;
 							}
 						} else {
-							plugin.getLogger().warning("Song not specified for MUSIC_DISC in definition for " + sec.getCurrentPath() + ": " + itmStr);
+							plugin.getLogger().warning("Song not specified or MusicBox isn't loaded for MUSIC_DISC in definition for " + sec.getCurrentPath() + ": " + itmStr);
 							r.incompleteLoadError = true;
 						}
 					} else {
@@ -646,5 +647,9 @@ public class Config {
 			plugin.getLogger().warning("Notice: Unexpected data tag" + (errors.indexOf(',') == -1 ? "" : "s") + ": " + errors + " in definition for " + def);
 		}
 		return enchErrors || errors.isEmpty();
+	}
+
+	public static boolean isMusicBoxLoaded() {
+		return Bukkit.getPluginManager().getPlugin("MusicBox") != null;
 	}
 }
