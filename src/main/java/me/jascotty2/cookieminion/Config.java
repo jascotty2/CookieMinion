@@ -31,7 +31,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.EntityType;
-import org.bukkit.inventory.ItemStack;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.potion.PotionType;
 import ru.spliterash.musicbox.song.MusicBoxSong;
@@ -650,6 +650,7 @@ public class Config {
 	}
 
 	public static boolean isMusicBoxLoaded() {
-		return Bukkit.getPluginManager().getPlugin("MusicBox") != null;
+        Plugin test = Bukkit.getPluginManager().getPlugin("MusicBox");
+		return test != null && test instanceof ru.spliterash.musicbox.MusicBox;
 	}
 }
